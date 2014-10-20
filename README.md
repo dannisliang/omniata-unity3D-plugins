@@ -18,7 +18,7 @@ The plugin should be put together with the public header of the iOS framework in
 The definition of the methods which can be used by C# code is defined in
 * unity3D-iOS-Plugin/OmniataiOS.cs
 
-## Usage example
+#### Usage example
 
 a. Initialize
 
