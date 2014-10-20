@@ -19,7 +19,12 @@ public class Omniata {
 	// Generate event with customized parameters.
 	[System.Runtime.InteropServices.DllImport("__Internal")]
 	extern static void TrackEvent(string type, string parameters);
-	
+
+	// Get content with channel ID.
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	public extern static string loadMessagesForChannel(int channelID);
+
+
 	public static void Track (string type, Dictionary<string, string> parameters)
 	{
 		string attributesString = "";

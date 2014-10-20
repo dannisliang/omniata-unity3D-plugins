@@ -11,7 +11,7 @@ iOS plugin
 The plugin is in the path:
 * unity3D-iOS-Plugin/OmniataiOSPlugin.m
 
-The plugin should be put together with the public header of the iOS framework in the path of one Unity3D project:
+The plugin should be put in the path of one Unity3D project:
 * <unity project name>/Assets/Plugins/iOS
 
 #### Methods Definition in C#
@@ -49,13 +49,26 @@ parameters.Add("attack.attacker_won", "0");
 string type="testing_type";
 Omniata.Track(type, parameters);
 ```
+
+e. Get channel message
+```c#
+int ChannelId = <channelID>;
+string message = Omniata.loadMessagesForChannel(ChannelId);
+Omniata._log (string.Format ("{0}", message));
+```
+
+
 #### Example project
 Set the Player settings for the unity3D project.
 Files --> Build Settings --> iOS --> Player Settings
 Choose 'SDK Version' as 'Device SDK'
-After building to an iOS project, open the project in Xcode and add the Omniata iOS SDK (iOmniataAPI.framework, check this [link][https://omniata.atlassian.net/wiki/display/DOC/iOS+SDK]), build.
+After building to an iOS project, open the project in Xcode and add the Omniata iOS SDK (iOmniataAPI.framework or the project folder, check this [link][https://omniata.atlassian.net/wiki/display/DOC/iOS+SDK]), build.
+Notes: b,c,d can be viewed [here][https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414] dynamically with the buttong click when the debug mode is true.
+e can be viewd in the Xcode console when the debug mode if false.
 
-Comments: The example project is developed and tested on an iOS device.
+The example project is developed and tested on an iOS device.
+
+
 
 
 

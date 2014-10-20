@@ -32,3 +32,19 @@ extern void TrackLoad()
 {
     [iOmniataAPI trackLoadEvent];
 }
+
+
+extern char* loadMessagesForChannel(const int channelID){
+    static NSString * result;
+    [iOmniataAPI loadMessagesForChannel:channelID completionHandler:^(OMT_CHANNEL_STATUS cs){
+        NSArray* omniValues = [iOmniataAPI getChannelMessages];
+        NSString * result = [omniValues description];
+        NSLog(@"omniValues:%@",omniValues);
+    }];
+    return result;
+}
+
+
+
+
+
