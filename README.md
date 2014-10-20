@@ -65,7 +65,7 @@ Choose 'SDK Version' as 'Device SDK'
 After building to an iOS project, open the project in Xcode and add the Omniata iOS SDK (iOmniataAPI.framework or the project folder, check this [link](https://omniata.atlassian.net/wiki/display/DOC/iOS+SDK])), and then build.
 
 Notes: b,c,d can be viewed [here](https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414) dynamically with the buttong click when the debug mode is true.
-e can be viewd in the Xcode console when the debug mode if false.
+e can be viewd in the Xcode console when the debug mode is false.
 
 The example project is developed and tested on an iOS device.
 
