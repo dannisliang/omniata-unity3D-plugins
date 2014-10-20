@@ -54,7 +54,6 @@ e. Get channel message
 ```c#
 int ChannelId = <channelID>;
 string message = Omniata.loadMessagesForChannel(ChannelId);
-Omniata._log (string.Format ("{0}", message));
 ```
 
 
