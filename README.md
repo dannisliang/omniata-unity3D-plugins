@@ -7,14 +7,14 @@ Plugins define the methods of the native library (Omniata SDK of iOS and Android
 iOS plugin
 ----------
 
-## Plugin Description
+#### Plugin Description
 The plugin is in the path:
 * unity3D-iOS-Plugin/OmniataiOSPlugin.m
 
 The plugin should be put together with the public header of the iOS framework in the path of one Unity3D project:
 * <unity project name>/Assets/Plugins/iOS
 
-## Methods Definition in C#
+#### Methods Definition in C#
 The definition of the methods which can be used by C# code is defined in
 * unity3D-iOS-Plugin/OmniataiOS.cs
 
@@ -49,7 +49,7 @@ parameters.Add("attack.attacker_won", "0");
 string type="testing_type";
 Omniata.Track(type, parameters);
 ```
-## Example project
+#### Example project
 Set the Player settings for the unity3D project.
 Files --> Build Settings --> iOS --> Player Settings
 Choose 'SDK Version' as 'Device SDK'
