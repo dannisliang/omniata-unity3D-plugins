@@ -7,6 +7,12 @@ using System.Runtime.InteropServices;
 public class Omniata {
 
 	[System.Runtime.InteropServices.DllImport("__Internal")]
+	public extern static void hello();
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	public extern static void Log(string tag, string message);
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
 	public extern static void Initialize(string api_key, string user_id, bool debug);
 
 	// Generate event system parameters automatically.
@@ -14,7 +20,7 @@ public class Omniata {
 	public extern static void TrackLoad();
 
 	[System.Runtime.InteropServices.DllImport("__Internal")]
-	public extern static void TrackPurchaseEvent(double total, string currency_code);
+	public extern static void TrackRevenue(double total, string currency_code);
 
 	// Generate event with customized parameters.
 	[System.Runtime.InteropServices.DllImport("__Internal")]
@@ -22,8 +28,7 @@ public class Omniata {
 
 	// Get content with channel ID.
 	[System.Runtime.InteropServices.DllImport("__Internal")]
-	public extern static string loadMessagesForChannel(int channelID);
-
+	public extern static string GetChannelMessage(int channelID);
 
 	public static void Track (string type, Dictionary<string, string> parameters)
 	{
@@ -32,9 +37,9 @@ public class Omniata {
 		{
 			attributesString += kvp.Key + "=" + kvp.Value + "\n";
 		}
-
 		TrackEvent(type, attributesString);
 	}
+
 
 
 }
