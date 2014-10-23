@@ -5,23 +5,18 @@ Plugins define the methods of the native library (Omniata SDK of iOS and Android
 
 
 iOS plugin
-----------
+-----------------------------------
 
-### Plugin Description
-The plugin is in the path:
-* unity3D-iOS-Plugin/OmniataiOSPlugin.m
-
-The plugin should be put in the path of one Unity3D project:
+#### Plugin Description
+The plugin file 'OmniataiOSPlugin.m' should be put in the path of one Unity3D project:
 * <unity project name>/Assets/Plugins/iOS
 
-### Methods Definition in C#
-The definition of the methods which can be used by C# code is defined in
-* unity3D-iOS-Plugin/OmniataiOS.cs
+#### Methods Definition in C#
+The definition of the methods which can be used by C# code is defined in 'OmniataiOS.cs', which should be put in the Assets of the Unity3D project.
 
-### Usage example
+#### Usage examples in Unity3D project
 
 a. Initialize
-
 ```c#
 string apikey = <api key>;
 string uid = <uid>;
@@ -56,26 +51,26 @@ int ChannelId = <channelID>;
 string message = Omniata.GetChannelMessage(ChannelId);
 ```
 
-### Example project
+#### Example project
 Set the Player settings for the unity3D project.
 Files --> Build Settings --> iOS --> Player Settings
 Choose 'SDK Version' as 'Device SDK'
 
-After building to an iOS project, open the project in Xcode and add the Omniata iOS SDK (iOmniataAPI.framework or the project folder, check this [link](https://omniata.atlassian.net/wiki/display/DOC/iOS+SDK])), and then build.
+After building to an iOS project, open the project in Xcode and add the Omniata iOS SDK to the build target ([check this link](https://omniata.atlassian.net/wiki/display/DOC/iOS+SDK])), and then build.
 
-Notes: b,c,d can be viewed [here](https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414) dynamically with the buttong click when the debug mode true.
+Notes: b,c,d can be viewed with [this live demo](https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414) dynamically with the button click when the debug mode is true.
 e can be viewd in the Xcode console when the debug mode is false.
 
 The example project is developed and tested on an iOS device.
 
 
 Android plugin
----------------
+-----------------------------------
 
-### Plugin Description
+#### Plugin Description
 The Android plugin includes the Java method of Omniata API and the local C# file of calling Java method.
 
-### Plugin usage procedure.
+#### Plugin usage procedure.
 1. Inside of the main activity of the Android project, initialize a public context object and add the following public methods.
 
 a. Initialize 
@@ -84,18 +79,21 @@ public void initialize(String apiKey, String userId,boolean debug){
     Omniata.initialize(this, apiKey, userId, debug);
 }
 ```
+
 b. Track load
 ```java
 public static void trackload(){
     Omniata.trackLoad();
 }
 ```
+
 c. Track revenue
 ```java
 public static void trackRevenue(double total, String currencyCode){
     Omniata.trackRevenue(total, currencyCode);
 }
 ```
+
 d. Track custom event
 ```java
 public static void track(String eventType, String para){
@@ -115,6 +113,7 @@ public static void track(String eventType, String para){
     Omniata.track(eventType, parameters);
 }
 ```
+
 e. Log method
 ```java
 public static void log(String tag, String message){
@@ -142,10 +141,9 @@ Notes: The namespace of the project can also be added for this file.
 Notes: in this step, check the 'Bundle Identifier' name inside of File --> Build Settings --> Player Settings --> Other Settings, it should be the same name of the exported jar package name in the above step. 
 
 
-### Usage example
+#### Usage example
 
 a. Initialize
-
 ```c#
 string apikey = <api key>;
 string uid = <uid>;
@@ -174,17 +172,8 @@ string type="testing_type";
 Omniata.Track(type, parameters);
 ```
 
-
-### Example project
-The example Android project is OmniataAndroidPlugin, and the example Unity3D project is 'unity_plugin_android_example.unitypackage'.
+#### Example project
+The example Android project is 'OmniataAndroidPlugin', and the example Unity3D project is 'unity_plugin_android_example.unitypackage'.
 When build the project to Android, set the 'Bundle Identifier' as 'com.omniata.android.plugin'.
-Test results can be viewed throught the live demo of this [url](https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414).
-
-
-
-
-
-
-
-
+Test results can be viewed with [this live demo](https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414).
 
