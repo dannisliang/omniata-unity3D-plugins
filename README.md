@@ -4,24 +4,28 @@ Plugins for Unity3D to use Omniata SDK
 Plugins define the methods of the native library (Omniata SDK of iOS and Android), which can be directly called in the Unity3D project.
 
 
+Usage steps of the Plugin:
+-----------------------------------
+Import the files in the Unity3D package, including Editor and Omniata and Plugins. The details of each folder is explained as follows:
+
+*Editor*: based on open source [XUPorter](https://github.com/onevcat/XUPorter), which includes the XcodePostProcess script to add the Omniata iOS SDK framework to the Xcode project. The open source does not support third part framework adding very well, so right now the framework is added in a folder named "Omniata" after the Xcode project build.
+
+*Omniata*: include a C# Script that uses the plugins and an example project.
+
+*Plugins*: include iOS and Android plugins (notes: subfolder is not supported by Unity3D, check [official documentation](http://docs.unity3d.com/Manual/PluginsForIOS.html)).
+
+
 iOS plugin
 -----------------------------------
 
-#### Plugin Description
-The plugin file 'OmniataiOSPlugin.m' should be put in the path of one Unity3D project:
-* <unity project name>/Assets/Plugins/iOS
-
 #### Methods Definition in C#
-The definition of the methods which can be used by C# code is defined in 'OmniataiOS.cs', which should be put in the Assets of the Unity3D project.
+The definition of the methods which can be used by C# code is defined in 'Omniata.cs', which should be put in the Assets of the Unity3D project.
 
 #### Usage examples in Unity3D project
 
 a. Initialize
 ```c#
-string apikey = <api key>;
-string uid = <uid>;
-bool debug = <debug>;
-Omniata.Initialize(apikey, uid, debug);
+Omniata.Initialize(Omniata.api_key, Omniata.uid, Omniata.debug);
 ```
 
 b. Track load
@@ -51,17 +55,21 @@ int ChannelId = <channelID>;
 string message = Omniata.GetChannelMessage(ChannelId);
 ```
 
+f. Log
+```c#
+Omniata.Log("<log message>");
+```
+
 #### Example project
-Set the Player settings for the unity3D project.
-Files --> Build Settings --> iOS --> Player Settings
-Choose 'SDK Version' as 'Device SDK'
-
-After building to an iOS project, open the project in Xcode and add the Omniata iOS SDK to the build target ([check this link](https://omniata.atlassian.net/wiki/display/DOC/iOS+SDK])), and then build.
-
-Notes: b,c,d can be viewed with [this live demo](https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414) dynamically with the button click when the debug mode is true.
-e can be viewd in the Xcode console when the debug mode is false.
+Import the 'Example' folder, uncomment the test api_key and uid in Omniata.cs file. When debug mode is true, 'Track load', 'Track revenue' and 'Track custom events' can be seen [here](https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414). Channel message can be viewd in the Xcode console when the debug mode is false.
 
 The example project is developed and tested on an iOS device.
+
+
+
+
+
+
 
 
 Android plugin
