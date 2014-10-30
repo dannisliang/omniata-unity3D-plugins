@@ -26,16 +26,16 @@ git tag -a v$VERSION -m "v${VERSION}"
 git push -u origin master
 
 # Clean and run doxygen
-echo "Creating APIdoc"
-rm -rf html
-rm -rf latex
-doxygen doxygen.config
+# echo "Creating APIdoc"
+# rm -rf html
+# rm -rf latex
+# doxygen doxygen.config
 
 # Deploy docs and binary
 echo "Copying to Omniata repository"
 DIR=`pwd`
 
-PAGES_DIR_RELATIVE=docs/sdks/unity3d-plugin/$VERSION
+PAGES_DIR_RELATIVE=docs/sdks/unitySDK/$VERSION
 PAGES_DIR=../Omniata.github.io/$PAGES_DIR_RELATIVE
 
 rm -rf $PAGES_DIR
@@ -48,7 +48,7 @@ echo "Commiting and pushing"
 cd $PAGES_REPOSITY_DIR
 git pull
 git add $PAGES_DIR_RELATIVE
-git commit -m "Unity3d plugin SDK ${VERSION}" $PAGES_DIR_RELATIVE
+git commit -m "update Unity3d plugin SDK ${VERSION}" $PAGES_DIR_RELATIVE
 git push -u origin master
 
 echo "Ready version $VERSION"
