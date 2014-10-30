@@ -1,17 +1,29 @@
 #import <iOmniataAPI/iOmniataAPI.h>
-// Converts C style string to NSString
+/**
+ * Converts C style string to NSString
+ */
 #define GetStringParam( _x_ ) ( _x_ != NULL ) ? [NSString stringWithUTF8String:_x_] : [NSString stringWithUTF8String:""]
 
-extern void Initialize(const char* api_key, const char* user_id, bool debug)
+/**
+ * Call initialize with api_key, uid and debug
+ */
+extern void Initialize(const char* api_key, const char* uid, bool debug)
 {
-	[iOmniataAPI initializeWithApiKey:GetStringParam(api_key) UserId:GetStringParam(user_id) AndDebug:debug];
+	[iOmniataAPI initializeWithApiKey:GetStringParam(api_key) UserId:GetStringParam(uid) AndDebug:debug];
 }
 
+/**
+ * Call TrackRevenue with total and currency_code
+ */
 extern void TrackRevenue(const double total, const char* currency_code)
 {
 	[iOmniataAPI trackPurchaseEvent:total currency_code: GetStringParam(currency_code)];
 }
 
+/**
+ * Call TrackEvent with type and parameters
+ * Convert parameters to NSMutableDictionary
+ */
 extern void TrackEvent(const char* type,const char *parameters) {
     NSString *attris = GetStringParam(parameters);
     NSArray *attributesArray = [attris componentsSeparatedByString:@"\n"];
@@ -28,10 +40,19 @@ extern void TrackEvent(const char* type,const char *parameters) {
     [iOmniataAPI trackEvent: GetStringParam(type):paraDict];
 }
 
+/**
+ * Call TrackLoad
+ */
+
 extern void TrackLoad()
 {
     [iOmniataAPI trackLoadEvent];
 }
+
+/**
+ * Call GetChannelMessage with channelID
+ * Return NSString result
+ */
 
 extern char* GetChannelMessage(const int channelID){
     static NSString * result;
@@ -44,6 +65,10 @@ extern char* GetChannelMessage(const int channelID){
     return result;
 }
 
+/**
+ * Call Log method with message
+ * Log in the Xcode console as "Omniata: <message>"
+ */
 extern void Log(const char* message)
 {
     NSLog(@"%@: %@", @"Omniata", GetStringParam(message));
