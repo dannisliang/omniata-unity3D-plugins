@@ -66,7 +66,7 @@ namespace test
 			{		
 
 				Omniata.Log ("Initialize");
-				Omniata.Initialize(Omniata.api_key, Omniata.uid, Omniata.debug);
+				Omniata.Initialize(Omniata.api_key, Omniata.uid, Omniata.org);
 				initialized = true;
 			}
 			
@@ -106,15 +106,12 @@ namespace test
 			// Make the fifth button.
 			/** Get the test message, only work for iOS build now
 			 *  uncomment for Android build will return error
-			 *  return value when debug mode is set to false, check the url here
-			 *  http://api.omniata.com/channel?uid=uidtest&api_key=a514370d&channel_id=40
 			 */
 			buttonIndex++;
 			buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "channel_info"))
 			{
-//				string message = Omniata.GetChannelMessage(40);
-//				Omniata.Log (message);
+				Omniata.LoadChannelMessage(40);
 			}
        }
     }

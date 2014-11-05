@@ -1,10 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Omniata/Omniata.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Omniata/Example/Test.cs">
     <Files>
-      <File FileName="Assets/Omniata/Example/Test.cs" Line="66" Column="7" />
-      <File FileName="Assets/Omniata/Omniata.cs" Line="37" Column="24" />
-      <File FileName="Assets/Plugins/Android/AndroidManifest.xml" Line="16" Column="37" />
+      <File FileName="Assets/Omniata/Omniata.cs" Line="71" Column="38" />
+      <File FileName="Assets/Omniata/Example/Test.cs" Line="90" Column="25" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

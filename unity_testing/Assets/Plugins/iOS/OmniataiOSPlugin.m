@@ -7,9 +7,9 @@
 /**
  * Call initialize with api_key, uid and debug
  */
-extern void Initialize(const char* api_key, const char* uid, bool debug)
+extern void Initialize(const char* api_key, const char* uid, const char* org)
 {
-	[iOmniataAPI initializeWithApiKey:GetStringParam(api_key) UserId:GetStringParam(uid) AndDebug:debug];
+	[iOmniataAPI initializeWithApiKey:GetStringParam(api_key) UserId:GetStringParam(uid) OrgName:GetStringParam(org)];
 }
 
 /**
@@ -54,15 +54,13 @@ extern void TrackLoad()
  * Return NSString result
  */
 
-extern char* GetChannelMessage(const int channelID){
+extern void LoadChannelMessage(const int channelID){
     static NSString * result;
     [iOmniataAPI loadMessagesForChannel:channelID completionHandler:^(OMT_CHANNEL_STATUS cs){
         NSArray* omniValues = [iOmniataAPI getChannelMessages];
-        NSString * result = [omniValues description];
-//      NSLog(@"omniValues:%@",omniValues);
-//        return result;
+        result = [omniValues description];
+        NSLog(@"channel message:%@",omniValues);
     }];
-    return result;
 }
 
 /**

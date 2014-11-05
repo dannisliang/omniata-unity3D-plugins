@@ -1,8 +1,8 @@
 // ------------------------------------------------------------------------------
 //  <Omniata>
 //		Unity3D plugins for Omniata iOS and Android SDK.
-//		Omniata Android SDK version: 1.1.2
-//		Omniata iOS SDK version: 1.1.1
+//		Omniata Android SDK version: 1.1.3
+//		Omniata iOS SDK version: 1.1.3
 //      Target version of Android: android-21
 //		created by Jun, 23-10-2014.
 //		
@@ -31,16 +31,14 @@ namespace omniata{
 
 		//test example of api_key & uid
 		/**
-         * Setting your personalized api_key and uid.
-         * The example uid api_key can be tested with the debug mode true here:
-         * https://demo.panel.omniata.com/data_models/55-custom-metrics/developer_console?api_key_ids%5B%5D=1414
+         * Setting your personalized api_key, uid and org.
          */
 
-//		public static string api_key = "a514370d";
-//		public static string uid = "uidtest";
-		public static string api_key = "<API KEY>";
-		public static string uid = "<User ID>";
-		public static bool debug = true;
+		public static string api_key = "a514370d";
+		public static string uid = "uidtest";
+		public static string org = "testOrg";
+//		public static string api_key = "<API KEY>";
+//		public static string uid = "<User ID>";
 		
 		
 		/**
@@ -58,19 +56,19 @@ namespace omniata{
 		#endif
 		
 		/**
-         * Extern initialize with api_key, user_id, false, debug
+         * Extern initialize with api_key, user_id, org
          */	
 		#if UNITY_IOS
 			[System.Runtime.InteropServices.DllImport("__Internal")]
-			public extern static void Initialize(string api_key, string uid, bool debug);
+			public extern static void Initialize(string api_key, string uid, string org);
 		#elif UNITY_ANDROID
-			public static void Initialize(string apiKey, string userID, bool debug)
+			public static void Initialize(string apiKey, string userID, string org)
 			{
 				// Activity class name where you define the initialize method for omniata.
 				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 				{
 					getContext();
-					javaClass.CallStatic("initialize", playerActivityContext, apiKey, userID, debug);
+					javaClass.CallStatic("initialize", playerActivityContext, apiKey, userID, org);
 				}
 			}
 		#endif
@@ -170,7 +168,7 @@ namespace omniata{
          */
 		#if UNITY_IOS
 			[System.Runtime.InteropServices.DllImport("__Internal")]
-			public extern static string GetChannelMessage(int channelID);
+			public extern static void LoadChannelMessage(int channelID);
 		#endif
 		
 	}
