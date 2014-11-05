@@ -1,8 +1,8 @@
 // ------------------------------------------------------------------------------
 //  <Omniata>
 //		Unity3D plugins for Omniata iOS and Android SDK.
-//		Omniata Android SDK version: 1.1.3
-//		Omniata iOS SDK version: 1.1.3
+//		Omniata Android SDK version: 2.0.0
+//		Omniata iOS SDK version: 2.0.0
 //      Target version of Android: android-21
 //		created by Jun, 23-10-2014.
 //		
@@ -164,7 +164,7 @@ namespace omniata{
 		}
 		
 		/**
-         * Extern GetChannelMessage with channelID
+         * Extern LoadChannelMessage with channelID
          * only support iOS for now.
          */
 		#if UNITY_IOS

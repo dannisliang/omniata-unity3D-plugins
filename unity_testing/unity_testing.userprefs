@@ -1,9 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Omniata/Example/Test.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Omniata/Omniata.cs">
     <Files>
-      <File FileName="Assets/Omniata/Omniata.cs" Line="71" Column="38" />
-      <File FileName="Assets/Omniata/Example/Test.cs" Line="90" Column="25" />
+      <File FileName="Assets/Omniata/Omniata.cs" Line="172" Column="48" />
+      <File FileName="Assets/Omniata/Example/Test.cs" Line="114" Column="48" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
