@@ -111,7 +111,7 @@ namespace test
 			buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "channel_info"))
 			{
-				Omniata.LoadChannelMessage(40);
+//				Omniata.LoadChannelMessage(40);
 			}
        }
     }

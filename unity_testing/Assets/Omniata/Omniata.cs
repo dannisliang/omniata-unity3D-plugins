@@ -29,16 +29,17 @@ namespace omniata{
 
 		public const string SDK_VERSION = "unitySDK-1.0.0";
 
-		//test example of api_key & uid
+
 		/**
          * Setting your personalized api_key, uid and org.
          */
-
-		public static string api_key = "a514370d";
-		public static string uid = "uidtest";
-		public static string org = "testOrg";
-//		public static string api_key = "<API KEY>";
-//		public static string uid = "<User ID>";
+		//test example of api_key, uid & org.
+//		public static string api_key = "a514370d";
+//		public static string uid = "uidtest";
+//		public static string org = "testOrg";
+		public static string api_key = "<API KEY>";
+		public static string uid = "<User ID>";
+		public static string org = "<Orgnization Name>";
 		
 		
 		/**
