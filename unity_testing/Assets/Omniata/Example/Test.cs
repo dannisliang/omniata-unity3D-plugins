@@ -104,7 +104,7 @@ namespace test
 			}
 
 			// Make the fifth button.
-			/** Get the test message, only work for iOS build now
+			/** Load the test message, only work for iOS build now
 			 *  uncomment for Android build will return error
 			 */
 			buttonIndex++;
