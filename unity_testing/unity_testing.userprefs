@@ -1,9 +1,22 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../../../unity_test/Assets/Omniata/Omniata.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Omniata/Example/Test.cs">
     <Files>
-      <File FileName="../../../../unity_test/Assets/Omniata/Omniata.cs" Line="1" Column="1" />
+      <File FileName="Assets/Omniata/Example/Test.cs" Line="29" Column="27" />
+      <File FileName="Assets/Omniata/Omniata.cs" Line="1" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Assembly-CSharp" expanded="True">
+            <Node name="Omniata" expanded="True">
+              <Node name="Example" expanded="True" />
+              <Node name="giveValue.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
