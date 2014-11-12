@@ -24,11 +24,10 @@ namespace omniata{
      * documentation here:
      * https://omniata.atlassian.net/wiki/display/DOC/SDKs
      */
-	public class Omniata
+	public class Omniata: MonoBehaviour
 	{
-
 		public const string SDK_VERSION = "unitySDK-1.0.0";
-		// Event parameter names constants
+		// Event parameter names consts
 		private const string EVENT_PARAM_API_KEY = "api_key";
 		private const string EVENT_PARAM_CURRENCY_CODE = "currency_code";
 		private const string EVENT_PARAM_EVENT_TYPE = "om_event_type";
@@ -42,176 +41,204 @@ namespace omniata{
 		private const string EVENT_PARAM_OM_RETRY = "om_retry";
 		private const string EVENT_PARAM_OM_DISCARDED = "om_discarded";
 		
-		// Event type constants
+		// Event type consts
 		private const string EVENT_TYPE_OM_LOAD = "om_load";
 		private const string EVENT_TYPE_OM_REVENUE = "om_revenue";
-		private const string PLATFORM_WP8 = "wp8";
-
-		// Channel type constns
+		
+		// Channel type consts
 		private const string CHANNEL_ID = "channel_id";
+		
+		private static string api_key;
+		private static string uid;
+		private static string org;
+		public static string analyzerUrl;
+		public static string engagerUrl;
+		
+		/**
+         * Setting your personalized api_key, uid and org in Omniata.prefab.
+         */
+		public string API_KEY = "<API KEY>";
+		public string UID = "<User ID>";
+		public string ORG = "<Orgnization Name>";
+		public bool startManually = false;
+
+		
+		void Awake() {
+			if (!this.startManually) {
+				Debug.Log ("Omniata Monobehavior Start");
+				Omniata.appDidLaunch (this.API_KEY, this.UID, this.ORG);
+			}
+		}
+
 
 		/**
-         * Setting your personalized api_key, uid and org.
-         */
-		//test example of api_key, uid & org.
-		public static string api_key = "a514370d";
-		public static string uid = "uidtest";
-		public static string org = "testOrg";
-//		public static string api_key = "<API KEY>";
-//		public static string uid = "<User ID>";
-//		public static string org = "<Orgnization Name>";
-
-		public static string analyzer_url = "https://"+org+".analyzer.omniata.com/event?";
-		public static string engager_url = "https://"+org+".engager.omniata.com/channel?";
-
-
+		 * Set the static api_key, uid and org for static method usage
+		 */ 
+		public static void appDidLaunch(string API_KEY, string UID, string ORG){
+			api_key = API_KEY;
+			uid = UID;
+			org = ORG;
+			setURL (org);
+			#if UNITY_IOS
+			Omniata.Initialize (api_key, uid, org);
+			#elif UNITY_ANDROID
+			Omniata.Initialize (api_key, uid, org);
+			#endif
+		}
+		
+		/**
+		 * Set analyzer and engager url with org
+		 */
+		private static void setURL(string morg){
+			analyzerUrl = "https://"+morg+".analyzer.omniata.com/event?";
+			engagerUrl = "https://"+morg+".engager.omniata.com/channel?";
+		}
+		
 		/**
          * Get the current context of the activity.
          */	
 		#if UNITY_ANDROID
-			public static AndroidJavaObject playerActivityContext;
-		public static void getContext()testOrg
+		public static AndroidJavaObject playerActivityContext;
+		public static void getContext()
 		{
-				using (var actClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
-					playerActivityContext = actClass.GetStatic<AndroidJavaObject>("currentActivity");
-				}
-				
+			using (var actClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+				playerActivityContext = actClass.GetStatic<AndroidJavaObject>("currentActivity");
 			}
+		}
 		#endif
 		
 		/**
          * Extern initialize with api_key, user_id, org
          */	
 		#if UNITY_IOS
-			[System.Runtime.InteropServices.DllImport("__Internal")]
-			public extern static void Initialize(string api_key, string uid, string org);
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		public extern static void Initialize(string api_key, string uid, string org);
 		#elif UNITY_ANDROID
-			public static void Initialize(string apiKey, string userID, string org)
+		public static void Initialize(string apiKey, string userID, string org)
+		{
+			// Activity class name where you define the initialize method for omniata.
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
-				// Activity class name where you define the initialize method for omniata.
-				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-				{
-					getContext();
-					javaClass.CallStatic("initialize", playerActivityContext, apiKey, userID, org);
-				}
+				getContext();
+				javaClass.CallStatic("initialize", playerActivityContext, apiKey, userID, org);
 			}
+		}
 		#endif
 		
 		/**
          * Extern TrackLoad with default system parameters
          */
 		#if UNITY_IOS
-			[System.Runtime.InteropServices.DllImport("__Internal")]
-			public extern static void TrackLoad();
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		public extern static void TrackLoad();
 		#elif UNITY_ANDROID
-			public static void TrackLoad()
+		public static void TrackLoad()
+		{
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
-				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-				{
-					javaClass.CallStatic("trackLoad");
-				}
+				javaClass.CallStatic("trackLoad");
 			}
+		}
 		#else
-			public static IEnumerator TrackLoad(){
-					Dictionary<string, string> parameters = new Dictionary<string, string>();	
-					AddAutomaticParameters(parameters);
-					parameters.Add(EVENT_PARAM_API_KEY, api_key);
-					parameters.Add(EVENT_PARAM_UID, uid);
-					string url = urlGenerater (analyzer_url, parameters);
-					WWW www = new WWW(url);
-					yield return www;
-					Debug.Log (www.url);
-					Debug.Log (www.isDone);
-					Debug.Log (www.text);
-			}
+		public static IEnumerator TrackLoad() {
+			Dictionary<string, string> parameters = new Dictionary<string, string>();	
+			AddAutomaticParameters(parameters);
+			parameters.Add(EVENT_PARAM_API_KEY, api_key);
+			parameters.Add(EVENT_PARAM_UID, uid);
+			string url = urlGenerator (analyzerUrl, parameters);
+			WWW www = new WWW(url);
+			yield return www;
+			Debug.Log (www.url);
+			Debug.Log (www.isDone);
+			Debug.Log (www.text);
+		}
 		#endif
 		
 		/**
          * Extern TrackRevenue with total and currency_code
          */
 		#if UNITY_IOS
-			[System.Runtime.InteropServices.DllImport("__Internal")]
-			public extern static void TrackRevenue(double total, string currency_code);
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		public extern static void TrackRevenue(double total, string currency_code);
 		#elif UNITY_ANDROID
-			public static void TrackRevenue(double total, string currencyCode)
+		public static void TrackRevenue(double total, string currencyCode)
+		{
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
-				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-				{
-					javaClass.CallStatic("trackRevenue",total,currencyCode);
-				}
+				javaClass.CallStatic("trackRevenue",total,currencyCode);
 			}
+		}
 		#else
-			public static IEnumerator TrackRevenue(double total, string currency_code){
-				Dictionary<string, string> parameters = new Dictionary<string, string>();	
-				parameters.Add(EVENT_PARAM_API_KEY, api_key);
-				parameters.Add(EVENT_PARAM_UID, uid);
-				parameters.Add(EVENT_PARAM_TOTAL, total.ToString());
-				parameters.Add(EVENT_PARAM_CURRENCY_CODE, currency_code);
-				string url = urlGenerater (analyzer_url, parameters);
-				WWW www = new WWW(url);
-				yield return www;
-				Debug.Log (www.url);
-				Debug.Log (www.isDone);
-				Debug.Log (www.text);
-			}
+		public static IEnumerator TrackRevenue(double total, string currency_code){
+			Dictionary<string, string> parameters = new Dictionary<string, string>();	
+			parameters.Add(EVENT_PARAM_API_KEY, api_key);
+			parameters.Add(EVENT_PARAM_UID, uid);
+			parameters.Add(EVENT_PARAM_TOTAL, total.ToString());
+			parameters.Add(EVENT_PARAM_CURRENCY_CODE, currency_code);
+			string url = urlGenerator (analyzerUrl, parameters);
+			WWW www = new WWW(url);
+			yield return www;
+			Debug.Log (www.url);
+			Debug.Log (www.isDone);
+			Debug.Log (www.text);
+		}
 		#endif
-
+		
 		/**
          * Extern TrackEvent with type and parameters
          */
 		#if UNITY_IOS
-			[System.Runtime.InteropServices.DllImport("__Internal")]
-			extern static void TrackEvent(string type, string parameters);
-			public static void Track (string type, Dictionary<string, string> dictPara)
-			{
-				string parameters;
-				parameters = DictionaryParse(dictPara);
-				TrackEvent(type, parameters);
-			}
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		extern static void TrackEvent(string type, string parameters);
+		public static void Track (string type, Dictionary<string, string> dictPara)
+		{
+			string parameters;
+			parameters = ToKeyValuePairString(dictPara);
+			TrackEvent(type, parameters);
+		}
 		#elif UNITY_ANDROID
-			public static void Track(string eventType, Dictionary<string, string> dictPara)
+		public static void Track(string eventType, Dictionary<string, string> dictPara)
+		{
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
-				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-				{
-					String parameters;
-					parameters = DictionaryParse(dictPara);
-					javaClass.CallStatic("unity_track",eventType,parameters);
-				}
+				String parameters;
+				parameters = ToKeyValuePairString(dictPara);
+				javaClass.CallStatic("unity_track",eventType,parameters);
 			}
+		}
 		#else
-			public static IEnumerator Track(string eventType, Dictionary<string, string> parameters){
-				parameters.Add (EVENT_PARAM_EVENT_TYPE, eventType);
-				parameters.Add(EVENT_PARAM_API_KEY, api_key);
-				parameters.Add(EVENT_PARAM_UID, uid);
-				string url = urlGenerater (analyzer_url, parameters);
-				WWW www = new WWW(url);
-				yield return www;
-				Debug.Log (www.url);
-				Debug.Log (www.isDone);
-				Debug.Log (www.text);
-			}
+		public static IEnumerator Track(string eventType, Dictionary<string, string> parameters){
+			parameters.Add (EVENT_PARAM_EVENT_TYPE, eventType);
+			parameters.Add(EVENT_PARAM_API_KEY, api_key);
+			parameters.Add(EVENT_PARAM_UID, uid);
+			string url = urlGenerator (analyzerUrl, parameters);
+			WWW www = new WWW(url);
+			yield return www;
+			Debug.Log (www.url);
+			Debug.Log (www.isDone);
+			Debug.Log (www.text);
+		}
 		#endif
-
 		
 		/**
          * Extern log of SDK
          */
 		#if UNITY_IOS
-			[System.Runtime.InteropServices.DllImport("__Internal")]
-			public extern static void Log(string message);
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		public extern static void Log(string message);
 		
 		#elif UNITY_ANDROID
-			public static void Log(string message){
-				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-				{
-					javaClass.CallStatic("unity_log",message);
-				}
+		public static void Log(string message){
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+			{
+				javaClass.CallStatic("unity_log",message);
 			}
+		}
 		#else 
-			public static void Log(string message){
-				message = DateTime.Now + " Omniata" + ": " + message;
-				Debug.Log (message);		
-			}
+		public static void Log(string message){
+			message = DateTime.Now + " Omniata" + ": " + message;
+			Debug.Log (message);		
+		}
 		#endif
 		
 		/**
@@ -219,24 +246,23 @@ namespace omniata{
          * only support iOS for now.
          */
 		#if UNITY_IOS
-			[System.Runtime.InteropServices.DllImport("__Internal")]
-			public extern static void LoadChannelMessage(int channelID);
-		#else 
-			public static IEnumerator LoadChanelMessage(int channelID){
-				Dictionary<string, string> parameters = new Dictionary<string, string>();
-				parameters.Add(EVENT_PARAM_API_KEY, api_key);
-				parameters.Add(EVENT_PARAM_UID, uid);
-				parameters.Add (CHANNEL_ID, channelID.ToString());
-				string url = urlGenerater (engager_url, parameters);
-				WWW www = new WWW(url);
-				yield return www;
-				Debug.Log (www.url);
-				Debug.Log (www.isDone);
-				Debug.Log (www.text);		
-			}
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		public extern static void LoadChannelMessage(int channelID);
+		#else
+		public static IEnumerator LoadChannelMessage(int channelID){
+			Dictionary<string, string> parameters = new Dictionary<string, string>();
+			parameters.Add(EVENT_PARAM_API_KEY, api_key);
+			parameters.Add(EVENT_PARAM_UID, uid);
+			parameters.Add (CHANNEL_ID, channelID.ToString());
+			string url = urlGenerator (engagerUrl, parameters);
+			WWW www = new WWW(url);
+			yield return www;
+			Debug.Log (www.url);
+			Debug.Log (www.isDone);
+			Debug.Log (www.text);		
+		}
 		#endif
-
-
+		
 		/**
 		 * Generated the automatic om parameters for platforms other than android and iOS
 		 * 
@@ -244,34 +270,25 @@ namespace omniata{
 		private static void AddAutomaticParameters(Dictionary<string, string> parameters)
 		{
 			RuntimePlatform platform = Application.platform;
-			string platformName = "";
-			if (platform == RuntimePlatform.WP8Player)
-			{
-				platformName = PLATFORM_WP8;
-			} else
-			{
-				platformName = "unknown";
-			}
-			parameters.Add (EVENT_PARAM_EVENT_TYPE,EVENT_TYPE_OM_LOAD);
-			parameters.Add(EVENT_PARAM_OM_PLATFORM, platformName);
+			parameters.Add(EVENT_PARAM_EVENT_TYPE,EVENT_TYPE_OM_LOAD);
+			parameters.Add(EVENT_PARAM_OM_PLATFORM, platform.ToString());
 			
 			parameters.Add(EVENT_PARAM_OM_DEVICE, SystemInfo.deviceModel);
-//			parameters.Add(EVENT_PARAM_OM_OS_VERSION, SystemInfo.operatingSystem);
-			
+			parameters.Add(EVENT_PARAM_OM_OS_VERSION, SystemInfo.operatingSystem);
 			parameters.Add(EVENT_PARAM_OM_SDK_VERSION, SDK_VERSION);
 		}
-
 		
 		/**
-         * Convert dictionary to strings in order to pass to Object-C
+         * Convert dictionary to URL encoded key value pair strings.
          * Calling TrackEvent with type and attributesString.
          */
-		private static string DictionaryParse (Dictionary<string, string> parameters)
+		private static string ToKeyValuePairString (Dictionary<string, string> parameters)
 		{
 			string attributesString = "";
 			foreach(KeyValuePair<string, string> kvp in parameters)
 			{
-				attributesString += kvp.Key + "=" + kvp.Value + "\n";
+				attributesString += WWW.EscapeURL(kvp.Key) + "=" + WWW.EscapeURL(kvp.Value) + "\n";
+				Log (attributesString);
 			}
 			return attributesString;
 		}
@@ -279,22 +296,10 @@ namespace omniata{
 		/**
 		 * Genearted url for omniata event API with the parameters.
 		 */
-		
-		private static string urlGenerater(string baseUrl, Dictionary<string, string> parameters){
-			string paraString = "";
-			string[] words = DictionaryParse (parameters).Split('\n');
-			for (int i=0; i<words.Length-1; i++) {
-				if(i==0){
-					paraString = words[i];
-				}else{
-					paraString = paraString + "&" +words[i];
-				}
-			}
-			string url = baseUrl + paraString;
-			return url;
+		private static string urlGenerator(string baseUrl, Dictionary<string, string> parameters){
+			return baseUrl + String.Join ("&", ToKeyValuePairString (parameters).Split ('\n'));
 		}
 	}
-	
 }
 
 
