@@ -26,7 +26,7 @@ namespace omniata{
      */
 	public class Omniata: MonoBehaviour
 	{
-		public const string SDK_VERSION = "unitySDK-1.0.0";
+		public const string SDK_VERSION = "unitySDK-1.0.1";
 		// Event parameter names consts
 		private const string EVENT_PARAM_API_KEY = "api_key";
 		private const string EVENT_PARAM_CURRENCY_CODE = "currency_code";
@@ -40,7 +40,7 @@ namespace omniata{
 		private const string EVENT_PARAM_OM_SDK_VERSION = "om_sdk_version";
 		private const string EVENT_PARAM_OM_RETRY = "om_retry";
 		private const string EVENT_PARAM_OM_DISCARDED = "om_discarded";
-		
+		private const string EVENT_PARAM_OM_UNITY_SDK_VERSION = "om_unity_sdk_version";
 		// Event type consts
 		private const string EVENT_TYPE_OM_LOAD = "om_load";
 		private const string EVENT_TYPE_OM_REVENUE = "om_revenue";
@@ -53,19 +53,29 @@ namespace omniata{
 		private static string org;
 		public static string analyzerUrl;
 		public static string engagerUrl;
-		
+
+		public enum LogLevel {
+			Verbose = 2,
+			Debug,
+			Info,
+			Warn,
+			Error,
+			Assert
+		}
 		/**
          * Setting your personalized api_key, uid and org in Omniata.prefab.
          */
 		public string API_KEY = "<API KEY>";
 		public string UID = "<User ID>";
 		public string ORG = "<Orgnization Name>";
+		public LogLevel LOGLEVEL = LogLevel.Verbose;
 		public bool startManually = false;
 
-		
+
 		void Awake() {
 			if (!this.startManually) {
 				Debug.Log ("Omniata Monobehavior Start");
+				Omniata.SetLogLevel((int)this.LOGLEVEL);
 				Omniata.appDidLaunch (this.API_KEY, this.UID, this.ORG);
 			}
 		}
@@ -80,9 +90,9 @@ namespace omniata{
 			org = ORG;
 			setURL (org);
 			#if UNITY_IOS
-			Omniata.Initialize (api_key, uid, org);
+				Omniata.Initialize (api_key, uid, org);
 			#elif UNITY_ANDROID
-			Omniata.Initialize (api_key, uid, org);
+				Omniata.Initialize (api_key, uid, org);
 			#endif
 		}
 		
@@ -130,15 +140,33 @@ namespace omniata{
          */
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static void TrackLoad();
+		public extern static void TrackLoadWithParameters(string parameters);
+		public static void TrackLoad(){
+			Dictionary<string, string> dictPara = new Dictionary<string, string>();
+			AddUnitySDKVersion(dictPara);
+			String parameters;
+			parameters = ToKeyValuePairString(dictPara);
+			TrackLoadWithParameters(parameters);
+		}
 		#elif UNITY_ANDROID
-		public static void TrackLoad()
-		{
+//		public static void TrackLoad()
+//		{
+//			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+//			{
+//				javaClass.CallStatic("trackLoad");
+//			}
+//		}
+		public static void TrackLoad(){
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
-				javaClass.CallStatic("trackLoad");
-			}
+				Dictionary<string, string> dictPara = new Dictionary<string, string>();
+				AddUnitySDKVersion(dictPara);
+				String parameters;
+				parameters = ToKeyValuePairString(dictPara);
+				javaClass.CallStatic("unityTrackLoad",parameters);
+			}		
 		}
+
 		#else
 		public static IEnumerator TrackLoad() {
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
@@ -240,7 +268,35 @@ namespace omniata{
 			Debug.Log (message);		
 		}
 		#endif
-		
+
+		/**
+		 * Extern loglevel of android and iOS SDK
+		 * 
+		 */
+
+		#if UNITY_IOS
+		/**
+		 * iOS loglevel message should be one of these:
+		 * SMT_LOG_ERROR, SMT_LOG_WARN, SMT_LOG_INFO, SMT_LOG_VERBOSE
+		 * calling example is SetLogLevel();
+		 */ 
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		public extern static void SetLogLevel(int priority);
+
+		#elif UNITY_ANDROID
+		/**
+		 * priority in Android is from 2-8, the lower the loglevel, the more verbose the log is
+		 * check details in Android API documentation.
+		 */
+		public static void SetLogLevel(int priority){
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+			{
+				javaClass.CallStatic("setLogLevel",priority);
+			}
+		}
+		#endif
+
+
 		/**
          * Extern LoadChannelMessage with channelID
          * only support iOS for now.
@@ -272,10 +328,14 @@ namespace omniata{
 			RuntimePlatform platform = Application.platform;
 			parameters.Add(EVENT_PARAM_EVENT_TYPE,EVENT_TYPE_OM_LOAD);
 			parameters.Add(EVENT_PARAM_OM_PLATFORM, platform.ToString());
-			
 			parameters.Add(EVENT_PARAM_OM_DEVICE, SystemInfo.deviceModel);
 			parameters.Add(EVENT_PARAM_OM_OS_VERSION, SystemInfo.operatingSystem);
 			parameters.Add(EVENT_PARAM_OM_SDK_VERSION, SDK_VERSION);
+		}
+
+		private static void AddUnitySDKVersion(Dictionary<string, string> parameters)
+		{
+			parameters.Add(EVENT_PARAM_OM_UNITY_SDK_VERSION,SDK_VERSION);
 		}
 		
 		/**

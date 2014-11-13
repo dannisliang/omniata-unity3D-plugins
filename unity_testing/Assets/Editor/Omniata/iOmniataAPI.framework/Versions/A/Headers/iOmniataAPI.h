@@ -3,11 +3,13 @@
 //#define DEVELOPMENT
 
 typedef enum {
-    SMT_LOG_NONE = 1,
-    SMT_LOG_ERROR,
-    SMT_LOG_WARN,
+    SMT_LOG_VERBOSE = 2,
+    SMT_LOG_DEBUG,
     SMT_LOG_INFO,
-    SMT_LOG_VERBOSE
+    SMT_LOG_WARN,
+    SMT_LOG_ERROR,
+    SMT_LOG_ASSERT,
+    SMT_LOG_NONE
 } SMT_LOG;
 
 typedef enum {

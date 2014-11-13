@@ -17,7 +17,7 @@ using omniata;
 namespace omniatatest
 {
 
-    public class OmniataTest : MonoBehaviour
+	public class OmniataTest : MonoBehaviour
     {
 		bool initialized;
 		void Start()
@@ -72,10 +72,16 @@ namespace omniatatest
 			int buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "Initialize"))
 			{	
+				//set the loglevel only works for iOS and Android
+				#if UNITY_IOS
+					Omniata.SetLogLevel((int)Omniata.LogLevel.Info);
+				#elif UNITY_ANDROID
+						Omniata.SetLogLevel((int)Omniata.LogLevel.Info);
+				#endif
 				// Start the omniata SDK manually
 				Omniata.appDidLaunch("a514370d", "uidtest", "testorg");
-				initialized=true;
 
+				initialized=true;
 			}
 			
 			// Make the second button, send track load events to Omniata
@@ -120,7 +126,6 @@ namespace omniatatest
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters.Add("app", "testapp");
 				parameters.Add("attack.attacker_won", "0");
-				parameters.Add ("shootfalut=1","5");
 				string eventType = "testing_event_type";
 
 				#if UNITY_IOS
