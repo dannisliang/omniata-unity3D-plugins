@@ -1,10 +1,8 @@
 // ------------------------------------------------------------------------------
 //  <Omniata>
 //		Unity3D plugins for Omniata iOS and Android SDK.
-//		Omniata Android SDK version: 2.0.0
-//		Omniata iOS SDK version: 2.0.0
-//      Target version of Android: android-21
-//		created by Jun, 23-10-2014.
+//		Omniata Android SDK version: 2.0.1
+//		Omniata iOS SDK version: 2.0.1
 //		
 //  </Omniata>
 // ------------------------------------------------------------------------------
@@ -75,7 +73,11 @@ namespace omniata{
 		void Awake() {
 			if (!this.startManually) {
 				Debug.Log ("Omniata Monobehavior Start");
+				#if UNITY_IOS
 				Omniata.SetLogLevel((int)this.LOGLEVEL);
+				#elif UNITY_ANDROID
+				Omniata.SetLogLevel((int)this.LOGLEVEL);
+				#endif
 				Omniata.appDidLaunch (this.API_KEY, this.UID, this.ORG);
 			}
 		}
@@ -303,7 +305,7 @@ namespace omniata{
          */
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static void LoadChannelMessage(int channelID);
+		public extern static string LoadChannelMessage(int channelID);
 		#else
 		public static IEnumerator LoadChannelMessage(int channelID){
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
