@@ -45,10 +45,24 @@ extern void TrackEvent(const char* type,const char *parameters) {
  * Call TrackLoad
  */
 
-extern void TrackLoad()
+extern void TrackLoadWithParameters(const char *parameters)
 {
-    [iOmniataAPI trackLoadEvent];
+    NSString *attris = GetStringParam(parameters);
+    NSString *decodedString = [attris stringByRemovingPercentEncoding];
+    NSArray *attributesArray = [decodedString componentsSeparatedByString:@"\n"];
+    NSMutableDictionary *paraDict = [[NSMutableDictionary alloc] init];
+    for (int i=0; i < [attributesArray count]; i++) {
+        NSString *keyValuePair = [attributesArray objectAtIndex:i];
+        NSRange range = [keyValuePair rangeOfString:@"="];
+        if (range.location != NSNotFound) {
+            NSString *key = [keyValuePair substringToIndex:range.location];
+            NSString *value = [keyValuePair substringFromIndex:range.location+1];
+            [paraDict setObject:value forKey:key];
+        }
+    }
+    [iOmniataAPI trackLoadEventWithParameters:paraDict];
 }
+
 
 /**
  * Call GetChannelMessage with channelID
@@ -71,6 +85,14 @@ extern void LoadChannelMessage(const int channelID){
 extern void Log(const char* message)
 {
     NSLog(@"%@: %@", @"Omniata", GetStringParam(message));
+}
+
+/**
+ * Call setloglevel with log priority
+ */
+
+extern void SetLogLevel(int priority){
+    [iOmniataAPI setLogLevel:priority];
 }
 
 

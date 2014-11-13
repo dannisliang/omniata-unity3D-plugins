@@ -1,8 +1,6 @@
 // ------------------------------------------------------------------------------
 //  <Omniata>
-//		Unity3D project example to use Omniata Android plugin
-//		Omniata Android SDK version: 1.1.1
-//      Target version of Android: android-21
+//		Unity3D project example
 //		created by Jun, 23-10-2014.
 //  </Omniata>
 // ------------------------------------------------------------------------------
@@ -17,12 +15,14 @@ using omniata;
 namespace omniatatest
 {
 
-    public class OmniataTest : MonoBehaviour
+	public class OmniataTest : MonoBehaviour
     {
 		bool initialized;
+		public Omniata omniata;
 		void Start()
 		{
-//			Omniata.Log ("Start");
+			omniata = GameObject.Find("Omniata").GetComponent<Omniata>(); 
+			omniata.TrackOmLoad();
 			initialized = false;
 
 
@@ -40,19 +40,15 @@ namespace omniatatest
 				if (initialized) 
 				{
 					// Automatically send om_load
-					#if UNITY_IOS
-						Omniata.TrackLoad(); //track load for iOS build
-					#elif UNITY_ANDROID
-						Omniata.TrackLoad(); //track load for Android build
-					#else
-						StartCoroutine(Omniata.TrackLoad ());//track load for local build
-					#endif
+					omniata.TrackOmLoad();
 				}
 			}
 		}
 
         void OnGUI()
         {
+			//Initilize the Omniata instance
+			omniata = GameObject.Find("Omniata").GetComponent<Omniata>();
 
 			int buttonCount = 5;
 			int screenWidth = Screen.width;
@@ -72,10 +68,12 @@ namespace omniatatest
 			int buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "Initialize"))
 			{	
+				//set the loglevel only works for iOS and Android
+				omniata.SetOmLoglevel((int)Omniata.LogLevel.Info);
 				// Start the omniata SDK manually
-				Omniata.appDidLaunch("a514370d", "uidtest", "testorg");
-				initialized=true;
+				omniata.appDidLaunch("a514370d", "uidtest", "testorg");
 
+				initialized=true;
 			}
 			
 			// Make the second button, send track load events to Omniata
@@ -83,15 +81,10 @@ namespace omniatatest
 			buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "om_load"))
 			{
-				#if UNITY_IOS
-					Omniata.Log("track load");//track load for iOS build
-					Omniata.TrackLoad();//track load for iOS build
-				#elif UNITY_ANDROID
-					Omniata.Log("track load");//track load for Android build
-					Omniata.TrackLoad();//track load for Android build
-				#else
-					StartCoroutine(Omniata.TrackLoad ());//track load for local build
-				#endif
+
+				omniata.LogOm("track load");//track load 
+				omniata.TrackOmLoad();
+
 			}
 			
 			// Make the third button, send track revenue events to Omniata
@@ -101,15 +94,9 @@ namespace omniatatest
 			{
 				double total = 99.9;
 				string currency_code = "EUR";
-				#if UNITY_IOS
-				Omniata.Log("track revenue");//track load for iOS build
-				Omniata.TrackRevenue(total,currency_code);//track load for iOS build
-				#elif UNITY_ANDROID
-				Omniata.Log("track revenue");//track load for Android build
-				Omniata.TrackRevenue(total,currency_code);//track load for Android build
-				#else
-					StartCoroutine(Omniata.TrackRevenue (total, currency_code));//track load for local build
-				#endif
+				omniata.LogOm("track revenue");//track revenue
+				omniata.TrackOmRevenue(total,currency_code);//track load for Android build
+
 			}
 
 			// Make the fourth button, customed the sending events to Omniata
@@ -120,18 +107,11 @@ namespace omniatatest
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				parameters.Add("app", "testapp");
 				parameters.Add("attack.attacker_won", "0");
-				parameters.Add ("shootfalut=1","5");
 				string eventType = "testing_event_type";
 
-				#if UNITY_IOS
-					Omniata.Log("track custom event");//track for iOS build
-					Omniata.Track(eventType,parameters);//track for iOS build
-				#elif UNITY_ANDROID
-					Omniata.Log("track custom event");//track for Android build
-					Omniata.Track(eventType,parameters);//track for Android build
-				#else
-					StartCoroutine(Omniata.Track(eventType,parameters));//track for local build
-				#endif
+				omniata.LogOm("track custom event");//track events
+				omniata.TrackOm(eventType,parameters);//track for local build
+
 
 			}
 
@@ -144,11 +124,8 @@ namespace omniatatest
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "channel_info"))
 			{
 				int ChannelId = 40;
-				#if UNITY_IOS
-					Omniata.LoadChannelMessage(ChannelId);
-				#else
-					StartCoroutine(Omniata.LoadChannelMessage(ChannelId)); //load message for local build
-				#endif
+				omniata.LoadOmChannelMessage(ChannelId); //load message for local build
+
 			}
        }
 
