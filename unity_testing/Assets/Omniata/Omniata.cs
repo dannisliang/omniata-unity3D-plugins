@@ -24,7 +24,7 @@ namespace omniata{
      */
 	public class Omniata: MonoBehaviour
 	{
-		public const string SDK_VERSION = "unitySDK-1.0.1";
+		public const string SDK_VERSION = "unitySDK-1.1.0";
 		// Event parameter names consts
 		private const string EVENT_PARAM_API_KEY = "api_key";
 		private const string EVENT_PARAM_CURRENCY_CODE = "currency_code";
@@ -74,11 +74,11 @@ namespace omniata{
 			if (!this.startManually) {
 				Debug.Log ("Omniata Monobehavior Start");
 				#if UNITY_IOS
-				Omniata.SetLogLevel((int)this.LOGLEVEL);
+				this.SetOmLoglevel((int)this.LOGLEVEL);
 				#elif UNITY_ANDROID
-				Omniata.SetLogLevel((int)this.LOGLEVEL);
+				this.SetOmLoglevel((int)this.LOGLEVEL);
 				#endif
-				Omniata.appDidLaunch (this.API_KEY, this.UID, this.ORG);
+				this.appDidLaunch (this.API_KEY, this.UID, this.ORG);
 			}
 		}
 
@@ -86,32 +86,128 @@ namespace omniata{
 		/**
 		 * Set the static api_key, uid and org for static method usage
 		 */ 
-		public static void appDidLaunch(string API_KEY, string UID, string ORG){
+		public void appDidLaunch(string API_KEY, string UID, string ORG){
 			api_key = API_KEY;
 			uid = UID;
 			org = ORG;
 			setURL (org);
 			#if UNITY_IOS
-				Omniata.Initialize (api_key, uid, org);
+			Initialize (api_key, uid, org);
 			#elif UNITY_ANDROID
-				Omniata.Initialize (api_key, uid, org);
+			Initialize (api_key, uid, org);
+			#endif
+		}
+
+
+
+		public void SetOmLoglevel(int priority){
+			SetLogLevel (priority);	
+		}
+		
+		public void LogOm(string message){
+			Log (message);
+		}
+
+		public void TrackOmLoad() {
+			#if UNITY_IOS
+			TrackLoad();
+			#elif UNITY_ANDROID
+			TrackLoad();
+			#else
+			StartCoroutine(this.TrackOmLoadCoroutine ());
 			#endif
 		}
 		
-		/**
-		 * Set analyzer and engager url with org
-		 */
-		private static void setURL(string morg){
-			analyzerUrl = "https://"+morg+".analyzer.omniata.com/event?";
-			engagerUrl = "https://"+morg+".engager.omniata.com/channel?";
+		public void TrackOmRevenue(double total, string currency_code){
+			#if UNITY_IOS
+			TrackRevenue(total, currency_code);
+			#elif UNITY_ANDROID
+			TrackRevenue(total, currency_code);
+			#else
+			StartCoroutine(this.TrackOmRevenueCoroutine (total, currency_code));
+			#endif	
 		}
 		
+		public void TrackOm(string eventType, Dictionary<string, string> parameters){
+			#if UNITY_IOS
+			Track(eventType, parameters);
+			#elif UNITY_ANDROID
+			Track(eventType, parameters);
+			#else
+			StartCoroutine(this.TrackOmCoroutine (eventType, parameters));
+			#endif	
+			
+		}
+		
+		public void LoadOmChannelMessage(int channelID){
+			#if UNITY_IOS
+			LoadChannelMessage(channelID);
+			#else
+			StartCoroutine(this.LoadOmChannelMessageCoroutine (channelID));
+			#endif	
+		}
+
+
+		
+		/**
+		 * Extern loglevel of android and iOS SDK
+		 * 
+		 */
+		
+		#if UNITY_IOS
+		/**
+		 * iOS loglevel message should be one of these:
+		 * SMT_LOG_ERROR, SMT_LOG_WARN, SMT_LOG_INFO, SMT_LOG_VERBOSE
+		 * calling example is SetLogLevel();
+		 */ 
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		private static extern void SetLogLevel(int priority);
+		
+		#elif UNITY_ANDROID
+		/**
+		 * priority in Android is from 2-8, the lower the loglevel, the more verbose the log is
+		 * check details in Android API documentation.
+		 */
+		private static void SetLogLevel(int priority){
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+			{
+				javaClass.CallStatic("setLogLevel",priority);
+			}
+		}
+		#else
+		private static void SetLogLevel(int priority){
+			
+		}
+		#endif
+
+
+		/**
+         * Extern log of SDK
+         */
+		#if UNITY_IOS
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		private static extern void Log(string message);
+		
+		#elif UNITY_ANDROID
+		private static void Log(string message){
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+			{
+				javaClass.CallStatic("unity_log",message);
+			}
+		}
+		#else 
+		private void Log(string message){
+			message = DateTime.Now + " Omniata" + ": " + message;
+			Debug.Log (message);		
+		}
+		#endif
+
 		/**
          * Get the current context of the activity.
          */	
 		#if UNITY_ANDROID
-		public static AndroidJavaObject playerActivityContext;
-		public static void getContext()
+		private static AndroidJavaObject playerActivityContext;
+		private static void getContext()
 		{
 			using (var actClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
 				playerActivityContext = actClass.GetStatic<AndroidJavaObject>("currentActivity");
@@ -124,9 +220,9 @@ namespace omniata{
          */	
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static void Initialize(string api_key, string uid, string org);
+		private extern static void Initialize(string api_key, string uid, string org);
 		#elif UNITY_ANDROID
-		public static void Initialize(string apiKey, string userID, string org)
+		private static void Initialize(string apiKey, string userID, string org)
 		{
 			// Activity class name where you define the initialize method for omniata.
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
@@ -142,8 +238,8 @@ namespace omniata{
          */
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static void TrackLoadWithParameters(string parameters);
-		public static void TrackLoad(){
+		private extern static void TrackLoadWithParameters(string parameters);
+		private static void TrackLoad(){
 			Dictionary<string, string> dictPara = new Dictionary<string, string>();
 			AddUnitySDKVersion(dictPara);
 			String parameters;
@@ -151,14 +247,7 @@ namespace omniata{
 			TrackLoadWithParameters(parameters);
 		}
 		#elif UNITY_ANDROID
-//		public static void TrackLoad()
-//		{
-//			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-//			{
-//				javaClass.CallStatic("trackLoad");
-//			}
-//		}
-		public static void TrackLoad(){
+		private static void TrackLoad(){
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
 				Dictionary<string, string> dictPara = new Dictionary<string, string>();
@@ -170,7 +259,8 @@ namespace omniata{
 		}
 
 		#else
-		public static IEnumerator TrackLoad() {
+
+		private IEnumerator TrackOmLoadCoroutine() {
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
 			AddAutomaticParameters(parameters);
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
@@ -189,9 +279,9 @@ namespace omniata{
          */
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static void TrackRevenue(double total, string currency_code);
+		private extern static void TrackRevenue(double total, string currency_code);
 		#elif UNITY_ANDROID
-		public static void TrackRevenue(double total, string currencyCode)
+		private static void TrackRevenue(double total, string currencyCode)
 		{
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
@@ -199,7 +289,7 @@ namespace omniata{
 			}
 		}
 		#else
-		public static IEnumerator TrackRevenue(double total, string currency_code){
+		private IEnumerator TrackOmRevenueCoroutine(double total, string currency_code){
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
 			parameters.Add(EVENT_PARAM_UID, uid);
@@ -220,24 +310,24 @@ namespace omniata{
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		extern static void TrackEvent(string type, string parameters);
-		public static void Track (string type, Dictionary<string, string> dictPara)
+		private static void Track (string type, Dictionary<string, string> dictPara)
 		{
 			string parameters;
 			parameters = ToKeyValuePairString(dictPara);
 			TrackEvent(type, parameters);
 		}
 		#elif UNITY_ANDROID
-		public static void Track(string eventType, Dictionary<string, string> dictPara)
+		private static void Track(string eventType, Dictionary<string, string> dictPara)
 		{
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
 				String parameters;
 				parameters = ToKeyValuePairString(dictPara);
-				javaClass.CallStatic("unity_track",eventType,parameters);
+				javaClass.CallStatic("unityTrack",eventType,parameters);
 			}
 		}
 		#else
-		public static IEnumerator Track(string eventType, Dictionary<string, string> parameters){
+		private IEnumerator TrackOmCoroutine(string eventType, Dictionary<string, string> parameters){
 			parameters.Add (EVENT_PARAM_EVENT_TYPE, eventType);
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
 			parameters.Add(EVENT_PARAM_UID, uid);
@@ -250,53 +340,6 @@ namespace omniata{
 		}
 		#endif
 		
-		/**
-         * Extern log of SDK
-         */
-		#if UNITY_IOS
-		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static void Log(string message);
-		
-		#elif UNITY_ANDROID
-		public static void Log(string message){
-			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-			{
-				javaClass.CallStatic("unity_log",message);
-			}
-		}
-		#else 
-		public static void Log(string message){
-			message = DateTime.Now + " Omniata" + ": " + message;
-			Debug.Log (message);		
-		}
-		#endif
-
-		/**
-		 * Extern loglevel of android and iOS SDK
-		 * 
-		 */
-
-		#if UNITY_IOS
-		/**
-		 * iOS loglevel message should be one of these:
-		 * SMT_LOG_ERROR, SMT_LOG_WARN, SMT_LOG_INFO, SMT_LOG_VERBOSE
-		 * calling example is SetLogLevel();
-		 */ 
-		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static void SetLogLevel(int priority);
-
-		#elif UNITY_ANDROID
-		/**
-		 * priority in Android is from 2-8, the lower the loglevel, the more verbose the log is
-		 * check details in Android API documentation.
-		 */
-		public static void SetLogLevel(int priority){
-			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
-			{
-				javaClass.CallStatic("setLogLevel",priority);
-			}
-		}
-		#endif
 
 
 		/**
@@ -305,9 +348,9 @@ namespace omniata{
          */
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
-		public extern static string LoadChannelMessage(int channelID);
+		private extern static void LoadChannelMessage(int channelID);
 		#else
-		public static IEnumerator LoadChannelMessage(int channelID){
+		private static IEnumerator LoadOmChannelMessageCoroutine(int channelID){
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
 			parameters.Add(EVENT_PARAM_UID, uid);
@@ -320,7 +363,15 @@ namespace omniata{
 			Debug.Log (www.text);		
 		}
 		#endif
-		
+
+		/**
+		 * Set analyzer and engager url with org
+		 */
+		private static void setURL(string morg){
+			analyzerUrl = "https://"+morg+".analyzer.omniata.com/event?";
+			engagerUrl = "https://"+morg+".engager.omniata.com/channel?";
+		}
+
 		/**
 		 * Generated the automatic om parameters for platforms other than android and iOS
 		 * 
@@ -350,7 +401,6 @@ namespace omniata{
 			foreach(KeyValuePair<string, string> kvp in parameters)
 			{
 				attributesString += WWW.EscapeURL(kvp.Key) + "=" + WWW.EscapeURL(kvp.Value) + "\n";
-				Log (attributesString);
 			}
 			return attributesString;
 		}
@@ -361,6 +411,7 @@ namespace omniata{
 		private static string urlGenerator(string baseUrl, Dictionary<string, string> parameters){
 			return baseUrl + String.Join ("&", ToKeyValuePairString (parameters).Split ('\n'));
 		}
+
 	}
 }
 

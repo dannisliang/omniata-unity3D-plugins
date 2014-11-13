@@ -60,8 +60,6 @@ extern void TrackLoadWithParameters(const char *parameters)
             [paraDict setObject:value forKey:key];
         }
     }
-    NSMutableDictionary *paraDict = [[NSMutableDictionary alloc] init];
-    paraDict = ConstToDict(parameters);
     [iOmniataAPI trackLoadEventWithParameters:paraDict];
 }
 

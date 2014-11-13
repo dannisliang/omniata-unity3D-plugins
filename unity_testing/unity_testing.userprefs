@@ -1,9 +1,9 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Omniata/Omniata.cs">
     <Files>
-      <File FileName="Assets/Omniata/Omniata.cs" Line="304" Column="49" />
-      <File FileName="Assets/Omniata/Example/OmniataTest.cs" Line="153" Column="6" />
+      <File FileName="Assets/Omniata/Omniata.cs" Line="129" Column="4" />
+      <File FileName="Assets/Omniata/Example/OmniataTest.cs" Line="129" Column="33" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
