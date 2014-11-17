@@ -63,6 +63,28 @@ extern void TrackLoadWithParameters(const char *parameters)
     [iOmniataAPI trackLoadEventWithParameters:paraDict];
 }
 
+/**
+ * Call TrackRevenue with total, currency_code and additional parameters.
+ */
+extern void TrackRevenueWithParameters(const double total, const char* currency_code, const char *parameters)
+{
+    NSLog(@"track revenue in ios plugin");
+    NSString *attris = GetStringParam(parameters);
+    NSString *decodedString = [attris stringByRemovingPercentEncoding];
+    NSArray *attributesArray = [decodedString componentsSeparatedByString:@"\n"];
+    NSMutableDictionary *paraDict = [[NSMutableDictionary alloc] init];
+    for (int i=0; i < [attributesArray count]; i++) {
+        NSString *keyValuePair = [attributesArray objectAtIndex:i];
+        NSRange range = [keyValuePair rangeOfString:@"="];
+        if (range.location != NSNotFound) {
+            NSString *key = [keyValuePair substringToIndex:range.location];
+            NSString *value = [keyValuePair substringFromIndex:range.location+1];
+            [paraDict setObject:value forKey:key];
+        }
+    }
+    NSLog(@"track revenue in ios plugin before calling trackpurchaseevent");
+    [iOmniataAPI trackPurchaseEvent:total currency_code:GetStringParam(currency_code) additional_params:paraDict];
+}
 
 /**
  * Call GetChannelMessage with channelID

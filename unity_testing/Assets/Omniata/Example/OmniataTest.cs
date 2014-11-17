@@ -10,19 +10,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using omniata;
+using OmniataSDK;
 
-namespace omniatatest
+namespace Omniatatest
 {
 
 	public class OmniataTest : MonoBehaviour
     {
 		bool initialized;
-		public Omniata omniata;
+
 		void Start()
 		{
-			omniata = GameObject.Find("Omniata").GetComponent<Omniata>(); 
-			omniata.TrackOmLoad();
+
+
 			initialized = false;
 
 
@@ -40,7 +40,7 @@ namespace omniatatest
 				if (initialized) 
 				{
 					// Automatically send om_load
-					omniata.TrackOmLoad();
+					Omniata.Instance.TrackOmLoad();
 				}
 			}
 		}
@@ -48,7 +48,7 @@ namespace omniatatest
         void OnGUI()
         {
 			//Initilize the Omniata instance
-			omniata = GameObject.Find("Omniata").GetComponent<Omniata>();
+
 
 			int buttonCount = 5;
 			int screenWidth = Screen.width;
@@ -69,10 +69,8 @@ namespace omniatatest
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "Initialize"))
 			{	
 				//set the loglevel only works for iOS and Android
-				omniata.SetOmLoglevel((int)Omniata.LogLevel.Info);
 				// Start the omniata SDK manually
-				omniata.appDidLaunch("a514370d", "uidtest", "testorg");
-
+				Omniata.Instance.appDidLaunch("04ecbc55", SystemInfo.deviceUniqueIdentifier, "demo", Omniata.LogLevel.Debug);
 				initialized=true;
 			}
 			
@@ -82,8 +80,11 @@ namespace omniatatest
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "om_load"))
 			{
 
-				omniata.LogOm("track load");//track load 
-				omniata.TrackOmLoad();
+				Omniata.Instance.LogOm("track load"); 
+				Omniata.Instance.TrackOmLoad(); //track load
+//				Dictionary<string, string> parameters = new Dictionary<string, string>();
+//				parameters.Add("para", "testpara");
+//				Omniata.Instance.TrackOmLoad(parameters);//track load with parameters
 
 			}
 			
@@ -94,9 +95,11 @@ namespace omniatatest
 			{
 				double total = 99.9;
 				string currency_code = "EUR";
-				omniata.LogOm("track revenue");//track revenue
-				omniata.TrackOmRevenue(total,currency_code);//track load for Android build
-
+				Omniata.Instance.LogOm("track revenue");//track revenue
+				Omniata.Instance.TrackOmRevenue(total,currency_code);//track revenue 
+//				Dictionary<string, string> parameters = new Dictionary<string, string>();
+//				parameters.Add("para", "testpara");
+//				Omniata.Instance.TrackOmRevenue(total, currency_code, parameters);//track revenue with parameters
 			}
 
 			// Make the fourth button, customed the sending events to Omniata
@@ -109,8 +112,8 @@ namespace omniatatest
 				parameters.Add("attack.attacker_won", "0");
 				string eventType = "testing_event_type";
 
-				omniata.LogOm("track custom event");//track events
-				omniata.TrackOm(eventType,parameters);//track for local build
+				Omniata.Instance.LogOm("track custom event");//track events
+				Omniata.Instance.TrackOm(eventType,parameters);//track for local build
 
 
 			}
@@ -123,8 +126,8 @@ namespace omniatatest
 			buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "channel_info"))
 			{
-				int ChannelId = 40;
-				omniata.LoadOmChannelMessage(ChannelId); //load message for local build
+				int ChannelId = 44;
+				Omniata.Instance.LoadOmChannelMessage(ChannelId); //load message for local build
 
 			}
        }

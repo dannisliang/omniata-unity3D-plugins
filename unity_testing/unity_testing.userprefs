@@ -1,22 +1,10 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Omniata/Omniata.cs">
     <Files>
-      <File FileName="Assets/Omniata/Omniata.cs" Line="129" Column="4" />
-      <File FileName="Assets/Omniata/Example/OmniataTest.cs" Line="129" Column="33" />
+      <File FileName="Assets/Omniata/Omniata.cs" Line="121" Column="42" />
+      <File FileName="Assets/Omniata/Example/OmniataTest.cs" Line="93" Column="46" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True">
-          <Node name="Assembly-CSharp" expanded="True">
-            <Node name="Omniata" expanded="True">
-              <Node name="Example" expanded="True" />
-              <Node name="Omniata.cs" selected="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

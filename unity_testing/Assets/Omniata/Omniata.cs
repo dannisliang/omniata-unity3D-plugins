@@ -12,7 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace omniata{
+namespace OmniataSDK{
 	
 	/**
      * The Unity-plugin class of Omniata SDK.
@@ -24,7 +24,7 @@ namespace omniata{
      */
 	public class Omniata: MonoBehaviour
 	{
-		public const string SDK_VERSION = "unitySDK-1.1.0";
+		public const string SDK_VERSION = "unitySDK-1.2.0";
 		// Event parameter names consts
 		private const string EVENT_PARAM_API_KEY = "api_key";
 		private const string EVENT_PARAM_CURRENCY_CODE = "currency_code";
@@ -46,12 +46,17 @@ namespace omniata{
 		// Channel type consts
 		private const string CHANNEL_ID = "channel_id";
 		
+		public static Omniata Instance
+		{
+			get;
+			private set;
+		}
 		private static string api_key;
 		private static string uid;
 		private static string org;
 		public static string analyzerUrl;
 		public static string engagerUrl;
-
+		
 		public enum LogLevel {
 			Verbose = 2,
 			Debug,
@@ -68,53 +73,63 @@ namespace omniata{
 		public string ORG = "<Orgnization Name>";
 		public LogLevel LOGLEVEL = LogLevel.Verbose;
 		public bool startManually = false;
-
-
+		
+		
 		void Awake() {
+			Instance = this;
+			
 			if (!this.startManually) {
 				Debug.Log ("Omniata Monobehavior Start");
-				#if UNITY_IOS
-				this.SetOmLoglevel((int)this.LOGLEVEL);
-				#elif UNITY_ANDROID
-				this.SetOmLoglevel((int)this.LOGLEVEL);
-				#endif
-				this.appDidLaunch (this.API_KEY, this.UID, this.ORG);
+				this.appDidLaunch (this.API_KEY, this.UID, this.ORG, this.LOGLEVEL);
 			}
 		}
-
-
+		
 		/**
 		 * Set the static api_key, uid and org for static method usage
 		 */ 
-		public void appDidLaunch(string API_KEY, string UID, string ORG){
+		public void appDidLaunch(string API_KEY, string UID, string ORG, LogLevel LOGLEVEL){
 			api_key = API_KEY;
 			uid = UID;
 			org = ORG;
 			setURL (org);
+			this.SetOmLoglevel (LOGLEVEL);
 			#if UNITY_IOS
 			Initialize (api_key, uid, org);
 			#elif UNITY_ANDROID
 			Initialize (api_key, uid, org);
 			#endif
+			//send TrackLoad automatically when the app is launched for the first time
+			this.TrackOmLoad ();
 		}
 
-
-
-		public void SetOmLoglevel(int priority){
-			SetLogLevel (priority);	
+		
+		public void SetOmLoglevel(LogLevel priority){
+			Debug.Log("set log level");
+			SetLogLevel ((int)priority);	
 		}
 		
 		public void LogOm(string message){
 			Log (message);
 		}
-
+		
 		public void TrackOmLoad() {
 			#if UNITY_IOS
 			TrackLoad();
 			#elif UNITY_ANDROID
 			TrackLoad();
 			#else
-			StartCoroutine(this.TrackOmLoadCoroutine ());
+			StartCoroutine(this.TrackLoadCoroutine ());
+			#endif
+		}
+
+
+		public void TrackOmLoad(Dictionary<string, string> parameters){
+			#if UNITY_IOS
+			TrackLoad(parameters);
+			#elif UNITY_ANDROID
+			TrackLoad(parameters);
+			#else
+			StartCoroutine(this.TrackLoadCoroutine (parameters));
 			#endif
 		}
 		
@@ -124,8 +139,19 @@ namespace omniata{
 			#elif UNITY_ANDROID
 			TrackRevenue(total, currency_code);
 			#else
-			StartCoroutine(this.TrackOmRevenueCoroutine (total, currency_code));
+			StartCoroutine(this.TrackRevenueCoroutine (total, currency_code));
 			#endif	
+		}
+
+		//??
+		public void TrackOmRevenue(double total, string currency_code, Dictionary<string, string> parameters){
+			#if UNITY_IOS
+			TrackRevenue(total, currency_code, parameters);
+			#elif UNITY_ANDROID
+			TrackRevenue(total, currency_code, parameters);
+			#else
+			StartCoroutine(this.TrackRevenueCoroutine (total, currency_code, parameters));
+			#endif
 		}
 		
 		public void TrackOm(string eventType, Dictionary<string, string> parameters){
@@ -146,8 +172,8 @@ namespace omniata{
 			StartCoroutine(this.LoadOmChannelMessageCoroutine (channelID));
 			#endif	
 		}
-
-
+		
+		
 		
 		/**
 		 * Extern loglevel of android and iOS SDK
@@ -179,8 +205,8 @@ namespace omniata{
 			
 		}
 		#endif
-
-
+		
+		
 		/**
          * Extern log of SDK
          */
@@ -201,7 +227,7 @@ namespace omniata{
 			Debug.Log (message);		
 		}
 		#endif
-
+		
 		/**
          * Get the current context of the activity.
          */	
@@ -234,7 +260,7 @@ namespace omniata{
 		#endif
 		
 		/**
-         * Extern TrackLoad with default system parameters
+         * TrackLoad with and without additional parameters
          */
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
@@ -246,6 +272,13 @@ namespace omniata{
 			parameters = ToKeyValuePairString(dictPara);
 			TrackLoadWithParameters(parameters);
 		}
+		private static void TrackLoad(Dictionary<string, string> dictPara){
+			AddUnitySDKVersion(dictPara);
+			String parameters;
+			parameters = ToKeyValuePairString(dictPara);
+			TrackLoadWithParameters(parameters);
+		}
+
 		#elif UNITY_ANDROID
 		private static void TrackLoad(){
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
@@ -257,11 +290,31 @@ namespace omniata{
 				javaClass.CallStatic("unityTrackLoad",parameters);
 			}		
 		}
+		private static void TrackLoad(Dictionary<string, string> dictPara){
 
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+			{
+				AddUnitySDKVersion(dictPara);
+				String parameters;
+				parameters = ToKeyValuePairString(dictPara);
+				javaClass.CallStatic("unityTrackLoad",parameters);
+			}		
+		}
 		#else
-
-		private IEnumerator TrackOmLoadCoroutine() {
+		
+		private IEnumerator TrackLoadCoroutine() {
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
+			AddAutomaticParameters(parameters);
+			parameters.Add(EVENT_PARAM_API_KEY, api_key);
+			parameters.Add(EVENT_PARAM_UID, uid);
+			string url = urlGenerator (analyzerUrl, parameters);
+			WWW www = new WWW(url);
+			yield return www;
+			Debug.Log (www.url);
+			Debug.Log (www.isDone);
+			Debug.Log (www.text);
+		}
+		private IEnumerator TrackLoadCoroutine(Dictionary<string, string> parameters) {	
 			AddAutomaticParameters(parameters);
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
 			parameters.Add(EVENT_PARAM_UID, uid);
@@ -275,11 +328,20 @@ namespace omniata{
 		#endif
 		
 		/**
-         * Extern TrackRevenue with total and currency_code
+         * Extern TrackRevenue with total, currency_code and optional additional parameters
          */
 		#if UNITY_IOS
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private extern static void TrackRevenue(double total, string currency_code);
+		[System.Runtime.InteropServices.DllImport("__Internal")]
+		private extern static void TrackRevenueWithParameters(double total, string currency_code, string parameters);
+		private static void TrackRevenue(double total, string currency_code, Dictionary<string, string> dictPara){
+			String parameters;
+			parameters = ToKeyValuePairString(dictPara);
+			Debug.Log ("revenue parameters: " + parameters);
+			TrackRevenueWithParameters(total, currency_code, parameters);
+		}
+
 		#elif UNITY_ANDROID
 		private static void TrackRevenue(double total, string currencyCode)
 		{
@@ -288,9 +350,31 @@ namespace omniata{
 				javaClass.CallStatic("trackRevenue",total,currencyCode);
 			}
 		}
+		private static void TrackRevenue(double total, string currencyCode, Dictionary<string, string> dictPara)
+		{
+			String parameters;
+			parameters = ToKeyValuePairString(dictPara);
+			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+			{
+				javaClass.CallStatic("unityRevenueTrack",total,currencyCode,parameters);
+			}
+		}
+
 		#else
-		private IEnumerator TrackOmRevenueCoroutine(double total, string currency_code){
+		private IEnumerator TrackRevenueCoroutine(double total, string currency_code){
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
+			parameters.Add(EVENT_PARAM_API_KEY, api_key);
+			parameters.Add(EVENT_PARAM_UID, uid);
+			parameters.Add(EVENT_PARAM_TOTAL, total.ToString());
+			parameters.Add(EVENT_PARAM_CURRENCY_CODE, currency_code);
+			string url = urlGenerator (analyzerUrl, parameters);
+			WWW www = new WWW(url);
+			yield return www;
+			Debug.Log (www.url);
+			Debug.Log (www.isDone);
+			Debug.Log (www.text);
+		}
+		private IEnumerator TrackRevenueCoroutine(double total, string currency_code, Dictionary<string, string> parameters){
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
 			parameters.Add(EVENT_PARAM_UID, uid);
 			parameters.Add(EVENT_PARAM_TOTAL, total.ToString());
@@ -340,8 +424,8 @@ namespace omniata{
 		}
 		#endif
 		
-
-
+		
+		
 		/**
          * Extern LoadChannelMessage with channelID
          * only support iOS for now.
@@ -363,7 +447,7 @@ namespace omniata{
 			Debug.Log (www.text);		
 		}
 		#endif
-
+		
 		/**
 		 * Set analyzer and engager url with org
 		 */
@@ -371,7 +455,7 @@ namespace omniata{
 			analyzerUrl = "https://"+morg+".analyzer.omniata.com/event?";
 			engagerUrl = "https://"+morg+".engager.omniata.com/channel?";
 		}
-
+		
 		/**
 		 * Generated the automatic om parameters for platforms other than android and iOS
 		 * 
@@ -385,7 +469,7 @@ namespace omniata{
 			parameters.Add(EVENT_PARAM_OM_OS_VERSION, SystemInfo.operatingSystem);
 			parameters.Add(EVENT_PARAM_OM_SDK_VERSION, SDK_VERSION);
 		}
-
+		
 		private static void AddUnitySDKVersion(Dictionary<string, string> parameters)
 		{
 			parameters.Add(EVENT_PARAM_OM_UNITY_SDK_VERSION,SDK_VERSION);
@@ -411,22 +495,7 @@ namespace omniata{
 		private static string urlGenerator(string baseUrl, Dictionary<string, string> parameters){
 			return baseUrl + String.Join ("&", ToKeyValuePairString (parameters).Split ('\n'));
 		}
-
+		
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
