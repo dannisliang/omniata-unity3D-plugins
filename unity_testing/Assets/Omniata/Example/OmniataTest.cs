@@ -21,10 +21,7 @@ namespace Omniatatest
 
 		void Start()
 		{
-
-
 			initialized = false;
-
 
 		}
 
@@ -70,7 +67,7 @@ namespace Omniatatest
 			{	
 				//set the loglevel only works for iOS and Android
 				// Start the omniata SDK manually
-				Omniata.Instance.appDidLaunch("04ecbc55", SystemInfo.deviceUniqueIdentifier, "demo", Omniata.LogLevel.Debug);
+				Omniata.Instance.appDidLaunch("a514370d", SystemInfo.deviceUniqueIdentifier, "demo", Omniata.LogLevel.Debug);
 				initialized=true;
 			}
 			
@@ -115,7 +112,6 @@ namespace Omniatatest
 				Omniata.Instance.LogOm("track custom event");//track events
 				Omniata.Instance.TrackOm(eventType,parameters);//track for local build
 
-
 			}
 
 			// Make the fifth button.
@@ -126,12 +122,11 @@ namespace Omniatatest
 			buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "channel_info"))
 			{
-				int ChannelId = 44;
+				int ChannelId = 40;
 				Omniata.Instance.LoadOmChannelMessage(ChannelId); //load message for local build
 
 			}
        }
-
 		
 	}
 }

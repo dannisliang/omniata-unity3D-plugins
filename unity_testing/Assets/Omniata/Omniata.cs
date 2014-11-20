@@ -1,11 +1,3 @@
-// ------------------------------------------------------------------------------
-//  <Omniata>
-//		Unity3D plugins for Omniata iOS and Android SDK.
-//		Omniata Android SDK version: 2.0.1
-//		Omniata iOS SDK version: 2.0.1
-//		
-//  </Omniata>
-// ------------------------------------------------------------------------------
 using UnityEngine;
 using System;
 using System.Collections;
@@ -13,18 +5,17 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace OmniataSDK{
-	
-	/**
-     * The Unity-plugin class of Omniata SDK.
-     * Omniata is the only integration point between a Unity application
-     * and the SDK.
-     * Details of the Omniata iOS and Android SDK, check the official
-     * documentation here:
-     * https://omniata.atlassian.net/wiki/display/DOC/SDKs
-     */
+
+	/// <summary>
+	/// This is an Unity-plugin for OM iOS and Android SDK.
+	/// Android SDK version: 2.0.1, iOS SDK version: 2.0.1
+	/// OM is the only integration point between a Unity application and the SDK.
+	/// Details of the OM iOS and Android SDK, check the official documentation here:
+	/// https://omniata.atlassian.net/wiki/display/DOC/SDKs
+	/// </summary>
 	public class Omniata: MonoBehaviour
 	{
-		public const string SDK_VERSION = "unitySDK-1.2.0";
+		public const string SDK_VERSION = "unitySDK-1.2.1";
 		// Event parameter names consts
 		private const string EVENT_PARAM_API_KEY = "api_key";
 		private const string EVENT_PARAM_CURRENCY_CODE = "currency_code";
@@ -56,7 +47,10 @@ namespace OmniataSDK{
 		private static string org;
 		public static string analyzerUrl;
 		public static string engagerUrl;
-		
+
+		/**
+		 * LogLevel value list
+		 */ 
 		public enum LogLevel {
 			Verbose = 2,
 			Debug,
@@ -65,9 +59,8 @@ namespace OmniataSDK{
 			Error,
 			Assert
 		}
-		/**
-         * Setting your personalized api_key, uid and org in Omniata.prefab.
-         */
+
+		// Setting your personalized api_key, uid and org in Omniata.prefab.
 		public string API_KEY = "<API KEY>";
 		public string UID = "<User ID>";
 		public string ORG = "<Orgnization Name>";
@@ -78,20 +71,24 @@ namespace OmniataSDK{
 		void Awake() {
 			Instance = this;
 			
-			if (!this.startManually) {
-				Debug.Log ("Omniata Monobehavior Start");
+			if (!this.startManually) {;
 				this.appDidLaunch (this.API_KEY, this.UID, this.ORG, this.LOGLEVEL);
 			}
 		}
 		
-		/**
-		 * Set the static api_key, uid and org for static method usage
-		 */ 
+		/// <summary>
+		/// Apps the did launch.
+		/// </summary>
+		/// <param name="API_KEY">API_Key.</param>
+		/// <param name="UID">UID.</param>
+		/// <param name="ORG">ORG.</param>
+		/// <param name="LOGLEVEL">LOGLEVE.</param>
 		public void appDidLaunch(string API_KEY, string UID, string ORG, LogLevel LOGLEVEL){
 			api_key = API_KEY;
 			uid = UID;
 			org = ORG;
 			setURL (org);
+			Debug.Log (LOGLEVEL);
 			this.SetOmLoglevel (LOGLEVEL);
 			#if UNITY_IOS
 			Initialize (api_key, uid, org);
@@ -101,17 +98,26 @@ namespace OmniataSDK{
 			//send TrackLoad automatically when the app is launched for the first time
 			this.TrackOmLoad ();
 		}
-
 		
+		/// <summary>
+		/// Sets the Omniata loglevel.
+		/// </summary>
+		/// <param name="priority">the priority of the loglevel</param>
 		public void SetOmLoglevel(LogLevel priority){
-			Debug.Log("set log level");
 			SetLogLevel ((int)priority);	
 		}
-		
+
+		/// <summary>
+		/// Omniata log
+		/// </summary>
+		/// <param name="message">Message.</param>
 		public void LogOm(string message){
 			Log (message);
 		}
 		
+		/// <summary>
+		/// Tracks Omniata load.
+		/// </summary>
 		public void TrackOmLoad() {
 			#if UNITY_IOS
 			TrackLoad();
@@ -121,8 +127,11 @@ namespace OmniataSDK{
 			StartCoroutine(this.TrackLoadCoroutine ());
 			#endif
 		}
-
-
+		
+		/// <summary>
+		/// Tracks Omniata load with parameters.
+		/// </summary>
+		/// <param name="parameters">Parameters.</param>
 		public void TrackOmLoad(Dictionary<string, string> parameters){
 			#if UNITY_IOS
 			TrackLoad(parameters);
@@ -133,6 +142,11 @@ namespace OmniataSDK{
 			#endif
 		}
 		
+		/// <summary>
+		/// Tracks Omniata revenue.
+		/// </summary>
+		/// <param name="total">Total.</param>
+		/// <param name="currency_code">Currency_code.</param>
 		public void TrackOmRevenue(double total, string currency_code){
 			#if UNITY_IOS
 			TrackRevenue(total, currency_code);
@@ -142,8 +156,13 @@ namespace OmniataSDK{
 			StartCoroutine(this.TrackRevenueCoroutine (total, currency_code));
 			#endif	
 		}
-
-		//??
+		
+		/// <summary>
+		/// Tracks Omniata revenue with parameters.
+		/// </summary>
+		/// <param name="total">Total.</param>
+		/// <param name="currency_code">Currency_code.</param>
+		/// <param name="parameters">Parameters.</param>
 		public void TrackOmRevenue(double total, string currency_code, Dictionary<string, string> parameters){
 			#if UNITY_IOS
 			TrackRevenue(total, currency_code, parameters);
@@ -154,6 +173,11 @@ namespace OmniataSDK{
 			#endif
 		}
 		
+		/// <summary>
+		/// Tracks Omniata event.
+		/// </summary>
+		/// <param name="eventType">Event type.</param>
+		/// <param name="parameters">Parameters.</param>
 		public void TrackOm(string eventType, Dictionary<string, string> parameters){
 			#if UNITY_IOS
 			Track(eventType, parameters);
@@ -165,6 +189,10 @@ namespace OmniataSDK{
 			
 		}
 		
+		/// <summary>
+		/// Loads Omniata channel message.
+		/// </summary>
+		/// <param name="channelID">Channel ID.</param>
 		public void LoadOmChannelMessage(int channelID){
 			#if UNITY_IOS
 			LoadChannelMessage(channelID);
@@ -172,20 +200,29 @@ namespace OmniataSDK{
 			StartCoroutine(this.LoadOmChannelMessageCoroutine (channelID));
 			#endif	
 		}
-		
-		
-		
+		/// <summary>
+		/// Enables Omniata push notifications.
+		/// </summary>
+		/// <param name="device_token">Device_token.</param>
+		public void EnableOmPushNotifications(String device_token){
+			EnablePushNotifications (device_token);
+		}
+
+		/// <summary>
+		/// Disables Omniata push notifications.
+		/// </summary>
+		public void DisableOmPushNotifications(){
+			DisablePushNotifications ();
+		}
+
+
 		/**
 		 * Extern loglevel of android and iOS SDK
 		 * 
 		 */
 		
 		#if UNITY_IOS
-		/**
-		 * iOS loglevel message should be one of these:
-		 * SMT_LOG_ERROR, SMT_LOG_WARN, SMT_LOG_INFO, SMT_LOG_VERBOSE
-		 * calling example is SetLogLevel();
-		 */ 
+		
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private static extern void SetLogLevel(int priority);
 		
@@ -202,7 +239,7 @@ namespace OmniataSDK{
 		}
 		#else
 		private static void SetLogLevel(int priority){
-			
+			Debug.Log("set loglevel");
 		}
 		#endif
 		
@@ -278,7 +315,7 @@ namespace OmniataSDK{
 			parameters = ToKeyValuePairString(dictPara);
 			TrackLoadWithParameters(parameters);
 		}
-
+		
 		#elif UNITY_ANDROID
 		private static void TrackLoad(){
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
@@ -291,7 +328,7 @@ namespace OmniataSDK{
 			}		
 		}
 		private static void TrackLoad(Dictionary<string, string> dictPara){
-
+			
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
 				AddUnitySDKVersion(dictPara);
@@ -341,7 +378,7 @@ namespace OmniataSDK{
 			Debug.Log ("revenue parameters: " + parameters);
 			TrackRevenueWithParameters(total, currency_code, parameters);
 		}
-
+		
 		#elif UNITY_ANDROID
 		private static void TrackRevenue(double total, string currencyCode)
 		{
@@ -359,7 +396,7 @@ namespace OmniataSDK{
 				javaClass.CallStatic("unityRevenueTrack",total,currencyCode,parameters);
 			}
 		}
-
+		
 		#else
 		private IEnumerator TrackRevenueCoroutine(double total, string currency_code){
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
@@ -447,19 +484,55 @@ namespace OmniataSDK{
 			Debug.Log (www.text);		
 		}
 		#endif
-		
-		/**
-		 * Set analyzer and engager url with org
-		 */
+
+
+		#if UNITY_IOS
+			[System.Runtime.InteropServices.DllImport("__Internal")]
+			private extern static void EnablePushNotifications(string device_token);
+		#elif UNITY_ANDROID
+			private static void EnablePushNotifications(string device_token)
+			{
+				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+				{
+					javaClass.CallStatic("enablePushNotifications",device_token);
+				}
+			}
+		#else
+			private static void EnablePushNotifications(string device_token){
+			Debug.Log("Enable push notifications");
+			}
+		#endif
+
+		#if UNITY_IOS
+			[System.Runtime.InteropServices.DllImport("__Internal")]
+			private extern static void DisablePushNotifications();
+		#elif UNITY_ANDROID
+			private static void DisablePushNotifications()
+			{
+				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
+				{
+					javaClass.CallStatic("disablePushNotifications");
+				}
+			}
+		#else
+			private static void DisablePushNotifications(){
+				Debug.Log("Disable push notifications");
+			}
+		#endif
+
+		/// <summary>
+		/// Sets the URL for Omniata analyzer and engager.
+		/// </summary>
+		/// <param name="morg">ORG.</param>
 		private static void setURL(string morg){
 			analyzerUrl = "https://"+morg+".analyzer.omniata.com/event?";
 			engagerUrl = "https://"+morg+".engager.omniata.com/channel?";
 		}
-		
-		/**
-		 * Generated the automatic om parameters for platforms other than android and iOS
-		 * 
-		 */
+
+		/// <summary>
+		/// Generated the automatic om parameters for platforms other than android and iOS
+		/// </summary>
+		/// <param name="parameters">Parameters.</param>
 		private static void AddAutomaticParameters(Dictionary<string, string> parameters)
 		{
 			RuntimePlatform platform = Application.platform;
@@ -469,16 +542,22 @@ namespace OmniataSDK{
 			parameters.Add(EVENT_PARAM_OM_OS_VERSION, SystemInfo.operatingSystem);
 			parameters.Add(EVENT_PARAM_OM_SDK_VERSION, SDK_VERSION);
 		}
-		
+
+		/// <summary>
+		/// Adds the unity SDK version for a dictionary parameters.
+		/// </summary>
+		/// <param name="parameters">Parameters.</param>
 		private static void AddUnitySDKVersion(Dictionary<string, string> parameters)
 		{
 			parameters.Add(EVENT_PARAM_OM_UNITY_SDK_VERSION,SDK_VERSION);
 		}
-		
-		/**
-         * Convert dictionary to URL encoded key value pair strings.
-         * Calling TrackEvent with type and attributesString.
-         */
+
+		/// <summary>
+		/// Convert dictionary to URL encoded key value pair strings.
+		/// Calling TrackEvent with type and attributesString.
+	    /// </summary>
+		/// <returns>The key value pair string.</returns>
+		/// <param name="parameters">Parameters.</param>
 		private static string ToKeyValuePairString (Dictionary<string, string> parameters)
 		{
 			string attributesString = "";
@@ -488,10 +567,13 @@ namespace OmniataSDK{
 			}
 			return attributesString;
 		}
-		
-		/**
-		 * Genearted url for omniata event API with the parameters.
-		 */
+
+		/// <summary>
+		/// Genearted url for omniata event API with the parameters.
+		/// </summary>
+		/// <returns>The generator.</returns>
+		/// <param name="baseUrl">Base URL.</param>
+		/// <param name="parameters">Parameters.</param>
 		private static string urlGenerator(string baseUrl, Dictionary<string, string> parameters){
 			return baseUrl + String.Join ("&", ToKeyValuePairString (parameters).Split ('\n'));
 		}

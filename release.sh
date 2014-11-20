@@ -26,10 +26,10 @@ git tag -a v$VERSION -m "v${VERSION}"
 git push -u origin master
 
 # Clean and run doxygen
-# echo "Creating APIdoc"
-# rm -rf html
-# rm -rf latex
-# doxygen doxygen.config
+echo "Creating APIdoc"
+rm -rf html
+rm -rf latex
+doxygen doxygen.config
 
 # Deploy docs and binary
 echo "Copying to Omniata repository"

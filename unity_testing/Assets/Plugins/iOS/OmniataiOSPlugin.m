@@ -100,6 +100,14 @@ extern void LoadChannelMessage(const int channelID){
     }];
 }
 
+extern void EnablePushNotifications(const char* device_token){
+    [iOmniataAPI enablePushNotifications:GetStringParam(device_token)];
+}
+
+extern void DisablePushNotifications(){
+    [iOmniataAPI disablePushNotifications];
+}
+
 /**
  * Call Log method with message
  * Log in the Xcode console as "Omniata: <message>"
