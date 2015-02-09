@@ -45,8 +45,6 @@ namespace Omniatatest
         void OnGUI()
         {
 			//Initilize the Omniata instance
-
-
 			int buttonCount = 5;
 			int screenWidth = Screen.width;
 			int screenHeight = Screen.height;
@@ -67,7 +65,13 @@ namespace Omniatatest
 			{	
 				//set the loglevel only works for iOS and Android
 				// Start the omniata SDK manually
-				Omniata.Instance.appDidLaunch("a514370d", SystemInfo.deviceUniqueIdentifier, "demo", Omniata.LogLevel.Debug);
+				bool DEBUG = true;
+				string API_KEY = "<API KEY>";
+				string ORG = "<ORG>";
+				Omniata.Instance.appDidLaunch(API_KEY, "<UID>", ORG, DEBUG ? Omniata.LogLevel.Debug : Omniata.LogLevel.Assert);
+				Omniata.Instance.TrackOmLoad();
+//				Omniata.Instance.appDidLaunch("a514370d", SystemInfo.deviceUniqueIdentifier, "demo", DEBUG ? Omniata.LogLevel.Debug : Omniata.LogLevel.Verbose);
+//				Omniata.Instance.appDidLaunch("a514370d", SystemInfo.deviceUniqueIdentifier, "demo", Omniata.LogLevel.Debug);
 				initialized=true;
 			}
 			
@@ -76,8 +80,6 @@ namespace Omniatatest
 			buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "om_load"))
 			{
-
-				Omniata.Instance.LogOm("track load"); 
 				Omniata.Instance.TrackOmLoad(); //track load
 //				Dictionary<string, string> parameters = new Dictionary<string, string>();
 //				parameters.Add("para", "testpara");
@@ -92,7 +94,6 @@ namespace Omniatatest
 			{
 				double total = 99.9;
 				string currency_code = "EUR";
-				Omniata.Instance.LogOm("track revenue");//track revenue
 				Omniata.Instance.TrackOmRevenue(total,currency_code);//track revenue 
 //				Dictionary<string, string> parameters = new Dictionary<string, string>();
 //				parameters.Add("para", "testpara");
@@ -108,9 +109,9 @@ namespace Omniatatest
 				parameters.Add("app", "testapp");
 				parameters.Add("attack.attacker_won", "0");
 				string eventType = "testing_event_type";
-
-				Omniata.Instance.LogOm("track custom event");//track events
 				Omniata.Instance.TrackOm(eventType,parameters);//track for local build
+
+
 
 			}
 
@@ -122,9 +123,10 @@ namespace Omniatatest
 			buttonYTop = yMargin + (buttonIndex * ySize) + (buttonIndex * ySize);
 			if (GUI.Button(new Rect(buttonXLeft, buttonYTop, xSize, ySize), "channel_info"))
 			{
-				int ChannelId = 40;
-				Omniata.Instance.LoadOmChannelMessage(ChannelId); //load message for local build
-
+//				int ChannelId = 40;
+//				Omniata.Instance.LoadOmChannelMessage(ChannelId); //load message for local build
+//				string token = "testdevicetokenadfadfadfasdfasdf";
+//				Omniata.Instance.EnableOmPushNotifications(token); // send device token to us for push notification
 			}
        }
 		

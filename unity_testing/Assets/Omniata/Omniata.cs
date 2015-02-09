@@ -15,7 +15,7 @@ namespace OmniataSDK{
 	/// </summary>
 	public class Omniata: MonoBehaviour
 	{
-		public const string SDK_VERSION = "unitySDK-1.2.1";
+		public const string SDK_VERSION = "unitySDK-1.2.2";
 		// Event parameter names consts
 		private const string EVENT_PARAM_API_KEY = "api_key";
 		private const string EVENT_PARAM_CURRENCY_CODE = "currency_code";
@@ -68,7 +68,7 @@ namespace OmniataSDK{
 		public bool startManually = false;
 		
 		
-		void Awake() {
+		protected virtual void Awake() {
 			Instance = this;
 			
 			if (!this.startManually) {;
@@ -88,12 +88,14 @@ namespace OmniataSDK{
 			uid = UID;
 			org = ORG;
 			setURL (org);
-			Debug.Log (LOGLEVEL);
+			#if UNITY_IOS && !UNITY_EDITOR
 			this.SetOmLoglevel (LOGLEVEL);
-			#if UNITY_IOS
 			Initialize (api_key, uid, org);
-			#elif UNITY_ANDROID
+			#elif UNITY_ANDROID && !UNITY_EDITOR
+			this.SetOmLoglevel (LOGLEVEL);
 			Initialize (api_key, uid, org);
+			#elif UNITY_WEBPLAYER && !UNITY_EDITOR
+			this.SetOmLoglevel (LOGLEVEL);
 			#endif
 			//send TrackLoad automatically when the app is launched for the first time
 			this.TrackOmLoad ();
@@ -114,16 +116,16 @@ namespace OmniataSDK{
 		public void LogOm(string message){
 			Log (message);
 		}
-		
+
 		/// <summary>
 		/// Tracks Omniata load.
 		/// </summary>
 		public void TrackOmLoad() {
-			#if UNITY_IOS
+			#if UNITY_IOS && !UNITY_EDITOR
 			TrackLoad();
-			#elif UNITY_ANDROID
+			#elif UNITY_ANDROID && !UNITY_EDITOR
 			TrackLoad();
-			#else
+			#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 			StartCoroutine(this.TrackLoadCoroutine ());
 			#endif
 		}
@@ -133,11 +135,11 @@ namespace OmniataSDK{
 		/// </summary>
 		/// <param name="parameters">Parameters.</param>
 		public void TrackOmLoad(Dictionary<string, string> parameters){
-			#if UNITY_IOS
+			#if UNITY_IOS && !UNITY_EDITOR
+			TrackLoad(parameters); 
+			#elif UNITY_ANDROID && !UNITY_EDITOR
 			TrackLoad(parameters);
-			#elif UNITY_ANDROID
-			TrackLoad(parameters);
-			#else
+			#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 			StartCoroutine(this.TrackLoadCoroutine (parameters));
 			#endif
 		}
@@ -148,11 +150,11 @@ namespace OmniataSDK{
 		/// <param name="total">Total.</param>
 		/// <param name="currency_code">Currency_code.</param>
 		public void TrackOmRevenue(double total, string currency_code){
-			#if UNITY_IOS
+			#if UNITY_IOS && !UNITY_EDITOR
 			TrackRevenue(total, currency_code);
-			#elif UNITY_ANDROID
+			#elif UNITY_ANDROID && !UNITY_EDITOR
 			TrackRevenue(total, currency_code);
-			#else
+			#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 			StartCoroutine(this.TrackRevenueCoroutine (total, currency_code));
 			#endif	
 		}
@@ -164,11 +166,11 @@ namespace OmniataSDK{
 		/// <param name="currency_code">Currency_code.</param>
 		/// <param name="parameters">Parameters.</param>
 		public void TrackOmRevenue(double total, string currency_code, Dictionary<string, string> parameters){
-			#if UNITY_IOS
+			#if UNITY_IOS && !UNITY_EDITOR
 			TrackRevenue(total, currency_code, parameters);
-			#elif UNITY_ANDROID
+			#elif UNITY_ANDROID && !UNITY_EDITOR
 			TrackRevenue(total, currency_code, parameters);
-			#else
+			#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 			StartCoroutine(this.TrackRevenueCoroutine (total, currency_code, parameters));
 			#endif
 		}
@@ -179,11 +181,11 @@ namespace OmniataSDK{
 		/// <param name="eventType">Event type.</param>
 		/// <param name="parameters">Parameters.</param>
 		public void TrackOm(string eventType, Dictionary<string, string> parameters){
-			#if UNITY_IOS
+			#if UNITY_IOS && !UNITY_EDITOR
 			Track(eventType, parameters);
-			#elif UNITY_ANDROID
+			#elif UNITY_ANDROID && !UNITY_EDITOR
 			Track(eventType, parameters);
-			#else
+			#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 			StartCoroutine(this.TrackOmCoroutine (eventType, parameters));
 			#endif	
 			
@@ -194,10 +196,10 @@ namespace OmniataSDK{
 		/// </summary>
 		/// <param name="channelID">Channel ID.</param>
 		public void LoadOmChannelMessage(int channelID){
-			#if UNITY_IOS
+			#if UNITY_IOS && !UNITY_EDITOR
 			LoadChannelMessage(channelID);
-			#else
-			StartCoroutine(this.LoadOmChannelMessageCoroutine (channelID));
+			#elif UNITY_WEBPLAYER && !UNITY_EDITOR
+			StartCoroutine(Omniata.LoadOmChannelMessageCoroutine (channelID));
 			#endif	
 		}
 		/// <summary>
@@ -220,13 +222,14 @@ namespace OmniataSDK{
 		 * Extern loglevel of android and iOS SDK
 		 * 
 		 */
-		
-		#if UNITY_IOS
+
+
+		#if UNITY_IOS && !UNITY_EDITOR
 		
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private static extern void SetLogLevel(int priority);
 		
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		/**
 		 * priority in Android is from 2-8, the lower the loglevel, the more verbose the log is
 		 * check details in Android API documentation.
@@ -237,9 +240,11 @@ namespace OmniataSDK{
 				javaClass.CallStatic("setLogLevel",priority);
 			}
 		}
+		#elif UNITY_WEBPLAYER && !UNITY_EDITOR
+		private static void SetLogLevel(int priority){
+		}
 		#else
 		private static void SetLogLevel(int priority){
-			Debug.Log("set loglevel");
 		}
 		#endif
 		
@@ -247,28 +252,31 @@ namespace OmniataSDK{
 		/**
          * Extern log of SDK
          */
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private static extern void Log(string message);
 		
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		private static void Log(string message){
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
 				javaClass.CallStatic("unity_log",message);
 			}
 		}
-		#else 
+		#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 		private void Log(string message){
 			message = DateTime.Now + " Omniata" + ": " + message;
 			Debug.Log (message);		
+		}
+		#else
+		private void Log(string message){	
 		}
 		#endif
 		
 		/**
          * Get the current context of the activity.
          */	
-		#if UNITY_ANDROID
+		#if UNITY_ANDROID && !UNITY_EDITOR
 		private static AndroidJavaObject playerActivityContext;
 		private static void getContext()
 		{
@@ -281,10 +289,10 @@ namespace OmniataSDK{
 		/**
          * Extern initialize with api_key, user_id, org
          */	
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private extern static void Initialize(string api_key, string uid, string org);
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		private static void Initialize(string apiKey, string userID, string org)
 		{
 			// Activity class name where you define the initialize method for omniata.
@@ -299,7 +307,7 @@ namespace OmniataSDK{
 		/**
          * TrackLoad with and without additional parameters
          */
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private extern static void TrackLoadWithParameters(string parameters);
 		private static void TrackLoad(){
@@ -316,7 +324,7 @@ namespace OmniataSDK{
 			TrackLoadWithParameters(parameters);
 		}
 		
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		private static void TrackLoad(){
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
 			{
@@ -337,7 +345,7 @@ namespace OmniataSDK{
 				javaClass.CallStatic("unityTrackLoad",parameters);
 			}		
 		}
-		#else
+		#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 		
 		private IEnumerator TrackLoadCoroutine() {
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
@@ -347,9 +355,6 @@ namespace OmniataSDK{
 			string url = urlGenerator (analyzerUrl, parameters);
 			WWW www = new WWW(url);
 			yield return www;
-			Debug.Log (www.url);
-			Debug.Log (www.isDone);
-			Debug.Log (www.text);
 		}
 		private IEnumerator TrackLoadCoroutine(Dictionary<string, string> parameters) {	
 			AddAutomaticParameters(parameters);
@@ -358,16 +363,13 @@ namespace OmniataSDK{
 			string url = urlGenerator (analyzerUrl, parameters);
 			WWW www = new WWW(url);
 			yield return www;
-			Debug.Log (www.url);
-			Debug.Log (www.isDone);
-			Debug.Log (www.text);
 		}
 		#endif
 		
 		/**
          * Extern TrackRevenue with total, currency_code and optional additional parameters
          */
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private extern static void TrackRevenue(double total, string currency_code);
 		[System.Runtime.InteropServices.DllImport("__Internal")]
@@ -375,11 +377,10 @@ namespace OmniataSDK{
 		private static void TrackRevenue(double total, string currency_code, Dictionary<string, string> dictPara){
 			String parameters;
 			parameters = ToKeyValuePairString(dictPara);
-			Debug.Log ("revenue parameters: " + parameters);
 			TrackRevenueWithParameters(total, currency_code, parameters);
 		}
 		
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		private static void TrackRevenue(double total, string currencyCode)
 		{
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
@@ -397,7 +398,7 @@ namespace OmniataSDK{
 			}
 		}
 		
-		#else
+		#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 		private IEnumerator TrackRevenueCoroutine(double total, string currency_code){
 			Dictionary<string, string> parameters = new Dictionary<string, string>();	
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
@@ -407,9 +408,6 @@ namespace OmniataSDK{
 			string url = urlGenerator (analyzerUrl, parameters);
 			WWW www = new WWW(url);
 			yield return www;
-			Debug.Log (www.url);
-			Debug.Log (www.isDone);
-			Debug.Log (www.text);
 		}
 		private IEnumerator TrackRevenueCoroutine(double total, string currency_code, Dictionary<string, string> parameters){
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
@@ -419,16 +417,13 @@ namespace OmniataSDK{
 			string url = urlGenerator (analyzerUrl, parameters);
 			WWW www = new WWW(url);
 			yield return www;
-			Debug.Log (www.url);
-			Debug.Log (www.isDone);
-			Debug.Log (www.text);
 		}
 		#endif
 		
 		/**
          * Extern TrackEvent with type and parameters
          */
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		extern static void TrackEvent(string type, string parameters);
 		private static void Track (string type, Dictionary<string, string> dictPara)
@@ -437,7 +432,7 @@ namespace OmniataSDK{
 			parameters = ToKeyValuePairString(dictPara);
 			TrackEvent(type, parameters);
 		}
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		private static void Track(string eventType, Dictionary<string, string> dictPara)
 		{
 			using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
@@ -447,7 +442,7 @@ namespace OmniataSDK{
 				javaClass.CallStatic("unityTrack",eventType,parameters);
 			}
 		}
-		#else
+		#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 		private IEnumerator TrackOmCoroutine(string eventType, Dictionary<string, string> parameters){
 			parameters.Add (EVENT_PARAM_EVENT_TYPE, eventType);
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
@@ -455,9 +450,6 @@ namespace OmniataSDK{
 			string url = urlGenerator (analyzerUrl, parameters);
 			WWW www = new WWW(url);
 			yield return www;
-			Debug.Log (www.url);
-			Debug.Log (www.isDone);
-			Debug.Log (www.text);
 		}
 		#endif
 		
@@ -467,10 +459,10 @@ namespace OmniataSDK{
          * Extern LoadChannelMessage with channelID
          * only support iOS for now.
          */
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 		[System.Runtime.InteropServices.DllImport("__Internal")]
 		private extern static void LoadChannelMessage(int channelID);
-		#else
+		#elif UNITY_WEBPLAYER && !UNITY_EDITOR
 		private static IEnumerator LoadOmChannelMessageCoroutine(int channelID){
 			Dictionary<string, string> parameters = new Dictionary<string, string>();
 			parameters.Add(EVENT_PARAM_API_KEY, api_key);
@@ -478,18 +470,15 @@ namespace OmniataSDK{
 			parameters.Add (CHANNEL_ID, channelID.ToString());
 			string url = urlGenerator (engagerUrl, parameters);
 			WWW www = new WWW(url);
-			yield return www;
-			Debug.Log (www.url);
-			Debug.Log (www.isDone);
-			Debug.Log (www.text);		
+			yield return www;		
 		}
 		#endif
 
 
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 			[System.Runtime.InteropServices.DllImport("__Internal")]
 			private extern static void EnablePushNotifications(string device_token);
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 			private static void EnablePushNotifications(string device_token)
 			{
 				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
@@ -499,14 +488,14 @@ namespace OmniataSDK{
 			}
 		#else
 			private static void EnablePushNotifications(string device_token){
-			Debug.Log("Enable push notifications");
+//			Debug.Log("Enable push notifications");
 			}
 		#endif
 
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 			[System.Runtime.InteropServices.DllImport("__Internal")]
 			private extern static void DisablePushNotifications();
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 			private static void DisablePushNotifications()
 			{
 				using (AndroidJavaClass javaClass = new AndroidJavaClass("com.omniata.android.sdk.Omniata"))
@@ -514,9 +503,12 @@ namespace OmniataSDK{
 					javaClass.CallStatic("disablePushNotifications");
 				}
 			}
+		#elif UNITY_WEBPLAYER && !UNITY_EDITOR
+			private static void DisablePushNotifications(){
+//				Debug.Log("Disable push notifications");
+			}
 		#else
 			private static void DisablePushNotifications(){
-				Debug.Log("Disable push notifications");
 			}
 		#endif
 
