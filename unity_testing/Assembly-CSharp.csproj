@@ -46,7 +46,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Omniata\Example\OmniataTest.cs" />
      <Compile Include="Assets\Omniata\Omniata.cs" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
   </ItemGroup>
