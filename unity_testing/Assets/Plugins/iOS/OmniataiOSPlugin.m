@@ -103,7 +103,7 @@ extern void LoadChannelMessage(const int channelID){
 extern void EnablePushNotifications(const char* device_token){
     NSString *string_token= GetStringParam(device_token);
     NSData *data_token = [string_token dataUsingEncoding:NSUTF8StringEncoding];
-    [iOmniataAPI enablePushNotifications:GetStringParam(data_token)];
+    [iOmniataAPI enablePushNotifications:data_token];
 }
 
 extern void DisablePushNotifications(){
