@@ -14,10 +14,17 @@ namespace UnityEditor.OMXCodeEditor
 		[PostProcessBuild(999)]
 		public static void OnPostProcessBuild( BuildTarget target, string pathToBuiltProject )
 		{
+#if !UNITY_5_0
 			if (target != BuildTarget.iPhone) {
 				Debug.LogWarning("Target is not iPhone. XCodePostProcess will not run");
 				return;
 			}
+#else
+			if (target != BuildTarget.iOS) {
+				Debug.LogWarning("Target is not iPhone. XCodePostProcess will not run");
+				return;
+			}
+#endif
 
 			// Create a new project object from build target
 			XCProject project = new XCProject( pathToBuiltProject );
