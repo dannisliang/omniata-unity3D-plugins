@@ -26,7 +26,7 @@ extern void TrackRevenue(const double total, const char* currency_code)
  */
 extern void TrackEvent(const char* type,const char *parameters) {
     NSString *attris = GetStringParam(parameters);
-    NSString *decodedString = [attris stringByRemovingPercentEncoding];
+    NSString *decodedString = [attris stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSArray *attributesArray = [decodedString componentsSeparatedByString:@"\n"];
     NSMutableDictionary *paraDict = [[NSMutableDictionary alloc] init];
     for (int i=0; i < [attributesArray count]; i++) {
